@@ -47,22 +47,22 @@ void imprimeCPU(CPU cpu, int index)
     printTableBorder();
 
     // Exibe o conteúdo da memória da CPU, se disponível
-    if (cpu.memoriaVect != NULL)
-    {
-        // Imprime os índices e os valores da memória
-        printf("| %-15s | %-18s |\n", "Index", "Valor");
-        printTableBorder();
-        for (int i = 0; i < cpu.quantidadeInteiros; i++)
-        {
-            printf("|  %14d | %18d |\n", i, cpu.memoriaVect[i]);
-        }
-        printTableBorder();
-    }
-    else
-    {
-        // Indica que a memória está vazia (NULL)
-        printf("| %-36s |\n", "NULL");
-        printTableBorder();
-    }
+    // if (cpu.memoriaVect != NULL)
+    // {
+    //     // Imprime os índices e os valores da memória
+    //     printf("| %-15s | %-18s |\n", "Index", "Valor");
+    //     printTableBorder();
+    //     for (int i = 0; i < cpu.quantidadeInteiros; i++)
+    //     {
+    //         printf("|  %14d | %18d |\n", i, cpu.memoriaVect[i]);
+    //     }
+    //     printTableBorder();
+    // }
+    // else
+    // {
+    //     // Indica que a memória está vazia (NULL)
+    //     printf("| %-36s |\n", "NULL");
+    //     printTableBorder();
+    // }
     printf("\n\n");
 }

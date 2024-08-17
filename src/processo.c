@@ -36,7 +36,6 @@ ProcessoSimulado *inicializaProcesso(char *conjuntoInstrucoes, int quantidadeIns
     processo->tempoCPU.valor = 0;        // Inicializa o tempo de CPU
     processo->quantidadeInteiros = 0;    // Inicializa a quantidade de inteiros
 
-    processo->quantidadeInstrucao = quantidadeInstrucao; // Define a quantidade de instruções
     processo->conjuntoInstrucoes = conjuntoInstrucoes;   // Atribui o conjunto de instruções
 
     return processo; // Retorna o processo simulado recém-criado
@@ -80,7 +79,6 @@ ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, i
         free(novoProcesso->memoria);
         free(novoProcesso);
     }
-    novoProcesso->quantidadeInstrucao = processoPai->quantidadeInstrucao;
 
     // Define o tempo de início e inicializa o tempo de CPU
     novoProcesso->tempoInicio = processoPai->tempoCPU;
@@ -123,7 +121,6 @@ void imprimirProcesso(ProcessoSimulado *processo)
     }
     printf("| %-21s | %-18d |\n", "Tempo de início", processo->tempoInicio.valor);      // Exibe o tempo de início
     printf("| %-20s | %-18d |\n", "Tempo de CPU", processo->tempoCPU.valor);            // Exibe o tempo de CPU
-    printf("| %-22s | %-18d |\n", "Qtd de instruções", processo->quantidadeInstrucao);  // Exibe a quantidade de instruções
     printf("| %-22s | %-18s |\n", "Conj. de instruções", processo->conjuntoInstrucoes); // Exibe o conjunto de instruções
     printf("| %-20s | %-18d |\n", "Qtd de inteiros", processo->quantidadeInteiros);     // Exibe a quantidade de inteiros
     printf("| %-21s |", "Memória");

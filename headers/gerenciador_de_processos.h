@@ -36,6 +36,7 @@ typedef struct
     int *processosEmExecucao;                      // Array que indica quais processos estão em execução em cada CPU.
     Tempo tempoMedio;                              // Tempo médio de execução dos processos.
     int processosTerminados;                       // Contador de processos que já terminaram a execução.
+    Memoria memoria;                               // Memória compartilhada entre os processos.
 } GerenciadorProcessos;
 
 // Declarações de funções para gerenciar processos na simulação
@@ -91,11 +92,11 @@ void iniciarVetorMemoria(CPU *cpu);
 
 // Comandos de controle de simulação (Exemplos: B, D, N, V, A, S, F, R, T)
 void comandoB(GerenciadorProcessos *gerenciador, int indexCPU, int valor);
-void comandoD(CPU *cpu, int index);
+void comandoD(CPU *cpu, int index, Memoria memoria);
 void comandoN(CPU *cpu, int valor);
-void comandoV(CPU *cpu, int index, int valor);
-void comandoA(CPU *cpu, int index, int valor);
-void comandoS(CPU *cpu, int index, int valor);
+void comandoV(CPU *cpu, int index, int valor, Memoria memoria);
+void comandoA(CPU *cpu, int index, int valor, Memoria memoria);
+void comandoS(CPU *cpu, int index, int valor, Memoria memoria);
 void comandoF(GerenciadorProcessos *gerenciador, int index, int valor);
 void comandoR(CPU *cpu, Instrucao instrucao);
 void comandoT(GerenciadorProcessos *gerenciador, int indexCPU);

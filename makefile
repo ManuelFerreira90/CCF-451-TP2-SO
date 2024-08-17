@@ -17,7 +17,6 @@ EXEC = exe
 
 # Regra padrão
 all: $(EXEC)
-
 # Regra para compilar o executável
 $(EXEC): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
@@ -35,5 +34,10 @@ clean:
 # Regra para executar o programa
 run: $(EXEC)
 	./$(EXEC)
+
+make magica: 
+	@echo "Abracadabra"
+	make clean
+	make run
 
 .PHONY: all clean run

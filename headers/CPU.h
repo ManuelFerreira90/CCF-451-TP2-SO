@@ -7,11 +7,12 @@
 typedef struct CPU
 {
     int contadorPrograma; // Contador de programa: armazena o endereço da próxima instrução a ser executada.
-    int *memoriaVect;     // Ponteiro para o vetor de memória alocado dinamicamente.
     Tempo fatiaTempo;     // Tempo máximo que um processo pode usar a CPU antes de ser interrompido.
     Tempo tempoUsado;     // Tempo já utilizado pelo processo em execução.
     int quantidadeInteiros; // Quantidade de inteiros armazenados na memória.
     ProcessoSimulado *processoEmExecucao; // Ponteiro para o processo que está atualmente em execução na CPU.
+    int regBase; // Registrador base da CPU.
+    int regLimite; // Registrador limite da CPU.
 } CPU;
 
 // Funções associadas à CPU

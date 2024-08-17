@@ -1,7 +1,7 @@
 #ifndef TEMPO_H
 #define TEMPO_H
 
-#include "./instrucao.h"
+#include "./memoria.h"
 
 // Estrutura que representa um tempo no sistema.
 // A estrutura pode ser expandida no futuro para incluir mais informações relacionadas ao tempo.

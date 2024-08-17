@@ -26,7 +26,8 @@ typedef struct
     Tempo tempoCPU;             // Tempo total de CPU utilizado pelo processo.
     Tempo tempoBloqueado;       // Tempo total que o processo passou bloqueado.
     int quantum;                // Tempo máximo que o processo pode usar a CPU antes de ser interrompido.
-    int quantidadeInstrucao;    // Quantidade de instruções que o processo possui.
+    int regBase;
+    int regLimite;
 } ProcessoSimulado;
 
 // Declarações de funções para manipulação de processos simulados
@@ -47,5 +48,3 @@ char* getInfoPrioridade(int prioridade);
 //---------------------------------------------------------------------------------------
 
 #endif // PROCESSO_H
-
-

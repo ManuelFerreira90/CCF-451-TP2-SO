@@ -70,60 +70,82 @@ void comandoB(GerenciadorProcessos *gerenciador, int indexCPU, int valor)
 }
 
 // Comando 'D': Declara uma nova variável no processo em execução
-void comandoD(CPU *cpu, int index)
+void comandoD(CPU *cpu, int index, Memoria memoria)
 {
     // Define o valor da variável no vetor de memória da CPU
-    cpu->memoriaVect[index] = 0;
+    // cpu->memoriaVect[index] = 0;
 
     // Incrementa o contador de programa da CPU
+    if (cpu->processoEmExecucao->regBase + index >= cpu->processoEmExecucao->regLimite)
+    {
+        printf("Erro: Tentativa de acesso a memória fora dos limites do processo\n");
+        return;
+    }
+
+    memoria.memoriaPrincipal[cpu->processoEmExecucao->regBase + index] = 0;
+
     cpu->contadorPrograma++;
 }
 
 // Comando 'N': Cria um novo vetor de memória para o processo em execução
 void comandoN(CPU *cpu, int valor)
 {
-    // Se o processo em execução já tiver um vetor de memória, libera-o
-    if (cpu->quantidadeInteiros > 0)
-    {
-        free(cpu->processoEmExecucao->memoria);
-        cpu->processoEmExecucao->memoria = NULL;
-    }
-
-    // Aloca um novo vetor de memória com o tamanho especificado
-    cpu->processoEmExecucao->memoria = (int *)malloc(valor * sizeof(int));
-    cpu->memoriaVect = cpu->processoEmExecucao->memoria;
     cpu->quantidadeInteiros = valor;
     cpu->processoEmExecucao->quantidadeInteiros = valor;
-
-    // Incrementa o contador de programa da CPU
     cpu->contadorPrograma++;
 }
 
 // Comando 'V': Define o valor de uma variável no vetor de memória do processo em execução
-void comandoV(CPU *cpu, int index, int valor)
+void comandoV(CPU *cpu, int index, int valor, Memoria memoria)
 {
-    // Define o valor da variável no índice especificado
-    cpu->memoriaVect[index] = valor;
+    // // Define o valor da variável no índice especificado
+    // cpu->memoriaVect[index] = valor;
 
-    // Incrementa o contador de programa da CPU
+    // // Incrementa o contador de programa da CPU
+
+    if (cpu->processoEmExecucao->regBase + index >= cpu->processoEmExecucao->regLimite)
+    {
+        printf("Erro: Tentativa de acesso a memória fora dos limites do processo\n");
+        return;
+    }
+
+    memoria.memoriaPrincipal[cpu->processoEmExecucao->regBase + index] = valor;
+
     cpu->contadorPrograma++;
 }
 
 // Comando 'A': Adiciona um valor a uma variável no vetor de memória do processo em execução
-void comandoA(CPU *cpu, int index, int valor)
+void comandoA(CPU *cpu, int index, int valor, Memoria memoria)
 {
     // Adiciona o valor à variável no índice especificado
-    cpu->memoriaVect[index] += valor;
+    // cpu->memoriaVect[index] += valor;
 
     // Incrementa o contador de programa da CPU
+
+    if (cpu->processoEmExecucao->regBase + index >= cpu->processoEmExecucao->regLimite)
+    {
+        printf("Erro: Tentativa de acesso a memória fora dos limites do processo\n");
+        return;
+    }
+
+    memoria.memoriaPrincipal[cpu->processoEmExecucao->regBase + index] += valor;
+
     cpu->contadorPrograma++;
 }
 
 // Comando 'S': Subtrai um valor de uma variável no vetor de memória do processo em execução
-void comandoS(CPU *cpu, int index, int valor)
+void comandoS(CPU *cpu, int index, int valor, Memoria memoria)
 {
     // Subtrai o valor da variável no índice especificado
-    cpu->memoriaVect[index] -= valor;
+    // cpu->memoriaVect[index] -= valor;
+
+    if (cpu->processoEmExecucao->regBase + index >= cpu->processoEmExecucao->regLimite)
+    {
+        printf("Erro: Tentativa de acesso a memória fora dos limites do processo\n");
+        return;
+    }
+
+    memoria.memoriaPrincipal[cpu->processoEmExecucao->regBase + index] -= valor;
 
     // Incrementa o contador de programa da CPU
     cpu->contadorPrograma++;
@@ -200,23 +222,27 @@ void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, in
     {
     case 'N':
         // Cria um vetor de memória com o tamanho especificado em instrucao.valor.
+        gerenciador->cpus[indexCPU].processoEmExecucao->regBase = gerenciador->memoria.tamanho;
+        alocarMemoriaProcesso(&(gerenciador->memoria), instrucao.valor);
+        gerenciador->cpus[indexCPU].processoEmExecucao->regLimite = gerenciador->memoria.tamanho;
+        
         comandoN(&(gerenciador->cpus[indexCPU]), instrucao.valor);
         break;
     case 'D':
         // Declara uma nova variável no processo atual, inicializando-a com 0.
-        comandoD(&(gerenciador->cpus[indexCPU]), instrucao.valor);
+        comandoD(&(gerenciador->cpus[indexCPU]), instrucao.valor, gerenciador->memoria);
         break;
     case 'V':
         // Define o valor de uma variável na memória do processo atual.
-        comandoV(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor);
+        comandoV(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, gerenciador->memoria);
         break;
     case 'A':
         // Adiciona o valor especificado a uma variável existente na memória do processo atual.
-        comandoA(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor);
+        comandoA(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, gerenciador->memoria);
         break;
     case 'S':
         // Subtrai o valor especificado de uma variável existente na memória do processo atual.
-        comandoS(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor);
+        comandoS(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, gerenciador->memoria);
         break;
     case 'B':
         // Bloqueia o processo em execução, movendo-o para a fila de processos bloqueados.
@@ -248,10 +274,10 @@ void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, in
 // Se o processo em execução tem memória alocada, a memória da CPU é apontada para essa memória.
 void iniciarVetorMemoria(CPU *cpu)
 {
-    if (cpu->processoEmExecucao->memoria != NULL)
-    {
-        cpu->memoriaVect = cpu->processoEmExecucao->memoria;
-    }
+    // if (cpu->processoEmExecucao->memoria != NULL)
+    // {
+    //     cpu->memoriaVect = cpu->processoEmExecucao->memoria;
+    // }
 }
 
 // Inicializa a CPU, configurando seus parâmetros básicos e inicializando o tempo de fatia.
@@ -263,7 +289,7 @@ void iniciarCPU(CPU *cpu)
 
     cpu->contadorPrograma = 0; // Zera o contador de programa.
 
-    cpu->memoriaVect = NULL; // Inicialmente, sem memória associada.
+    //cpu->memoriaVect = NULL; // Inicialmente, sem memória associada.
 }
 
 // Função que retorna o número de linhas no arquivo até o primeiro comando 'F' encontrado.
@@ -310,6 +336,7 @@ void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, char *arquiv
     gerenciador->processosTerminados = 0;
     gerenciador->tempoMedio.valor = 0;
     gerenciador->algoritmoEscalonamento = escalonador;
+    gerenciador->memoria.tamanho = 0;
 
     // Inicializa a tabela de processos e cria o processo inicial a partir do arquivo de entrada.
     inicializarTabelaProcessos(&(gerenciador->TabelaProcessos));
@@ -497,7 +524,6 @@ void atualizarProcessoEmExecucao(GerenciadorProcessos *gerenciador, int cpuIndex
     gerenciador->cpus[cpuIndex].processoEmExecucao = processo;
     gerenciador->cpus[cpuIndex].contadorPrograma = processo->PC;
 
-    gerenciador->cpus[cpuIndex].memoriaVect = processo->memoria;
     gerenciador->cpus[cpuIndex].quantidadeInteiros = processo->quantidadeInteiros;
 
     // Atualiza a estrutura de gerenciamento de processos.
