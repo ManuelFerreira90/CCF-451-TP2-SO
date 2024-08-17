@@ -70,7 +70,7 @@ void comandoB(GerenciadorProcessos *gerenciador, int indexCPU, int valor)
 }
 
 // Comando 'D': Declara uma nova variável no processo em execução
-void comandoD(CPU *cpu, int index, Memoria memoria)
+void comandoD(CPU *cpu, int index, Memoria *memoria)
 {
     // Define o valor da variável no vetor de memória da CPU
     // cpu->memoriaVect[index] = 0;
@@ -82,7 +82,7 @@ void comandoD(CPU *cpu, int index, Memoria memoria)
         return;
     }
 
-    memoria.memoriaPrincipal[cpu->processoEmExecucao->regBase + index] = 0;
+    memoria->memoriaPrincipal[cpu->processoEmExecucao->regBase + index] = 0;
 
     cpu->contadorPrograma++;
 }
@@ -96,7 +96,7 @@ void comandoN(CPU *cpu, int valor)
 }
 
 // Comando 'V': Define o valor de uma variável no vetor de memória do processo em execução
-void comandoV(CPU *cpu, int index, int valor, Memoria memoria)
+void comandoV(CPU *cpu, int index, int valor, Memoria *memoria)
 {
     // // Define o valor da variável no índice especificado
     // cpu->memoriaVect[index] = valor;
@@ -109,13 +109,13 @@ void comandoV(CPU *cpu, int index, int valor, Memoria memoria)
         return;
     }
 
-    memoria.memoriaPrincipal[cpu->processoEmExecucao->regBase + index] = valor;
+    memoria->memoriaPrincipal[cpu->processoEmExecucao->regBase + index] = valor;
 
     cpu->contadorPrograma++;
 }
 
 // Comando 'A': Adiciona um valor a uma variável no vetor de memória do processo em execução
-void comandoA(CPU *cpu, int index, int valor, Memoria memoria)
+void comandoA(CPU *cpu, int index, int valor, Memoria *memoria)
 {
     // Adiciona o valor à variável no índice especificado
     // cpu->memoriaVect[index] += valor;
@@ -128,13 +128,13 @@ void comandoA(CPU *cpu, int index, int valor, Memoria memoria)
         return;
     }
 
-    memoria.memoriaPrincipal[cpu->processoEmExecucao->regBase + index] += valor;
+    memoria->memoriaPrincipal[cpu->processoEmExecucao->regBase + index] += valor;
 
     cpu->contadorPrograma++;
 }
 
 // Comando 'S': Subtrai um valor de uma variável no vetor de memória do processo em execução
-void comandoS(CPU *cpu, int index, int valor, Memoria memoria)
+void comandoS(CPU *cpu, int index, int valor, Memoria *memoria)
 {
     // Subtrai o valor da variável no índice especificado
     // cpu->memoriaVect[index] -= valor;
@@ -145,7 +145,7 @@ void comandoS(CPU *cpu, int index, int valor, Memoria memoria)
         return;
     }
 
-    memoria.memoriaPrincipal[cpu->processoEmExecucao->regBase + index] -= valor;
+    memoria->memoriaPrincipal[cpu->processoEmExecucao->regBase + index] -= valor;
 
     // Incrementa o contador de programa da CPU
     cpu->contadorPrograma++;
@@ -230,19 +230,19 @@ void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, in
         break;
     case 'D':
         // Declara uma nova variável no processo atual, inicializando-a com 0.
-        comandoD(&(gerenciador->cpus[indexCPU]), instrucao.valor, gerenciador->memoria);
+        comandoD(&(gerenciador->cpus[indexCPU]), instrucao.valor, &(gerenciador->memoria));
         break;
     case 'V':
         // Define o valor de uma variável na memória do processo atual.
-        comandoV(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, gerenciador->memoria);
+        comandoV(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'A':
         // Adiciona o valor especificado a uma variável existente na memória do processo atual.
-        comandoA(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, gerenciador->memoria);
+        comandoA(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'S':
         // Subtrai o valor especificado de uma variável existente na memória do processo atual.
-        comandoS(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, gerenciador->memoria);
+        comandoS(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'B':
         // Bloqueia o processo em execução, movendo-o para a fila de processos bloqueados.
@@ -268,6 +268,7 @@ void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, in
     gerenciador->cpus[indexCPU].fatiaTempo.valor--;
     // Atualiza os dados do processo na CPU após a execução do comando.
     atualizaDadosProcesso(&(gerenciador->cpus[indexCPU]));
+    printMemoria(&gerenciador->memoria);
 }
 
 // Inicializa o vetor de memória para a CPU com base na memória do processo em execução.

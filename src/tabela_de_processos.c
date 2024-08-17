@@ -61,7 +61,6 @@ void retirarTabelaProcessos(tabelaProcessos *tabela, int ID_Processo)
     }
 
     // Libera a memória alocada para o processo removido
-    free(tabela->listaProcessos[foundIndex]->memoria);
     free(tabela->listaProcessos[foundIndex]);
 
     // Desloca os processos seguintes para preencher o espaço vazio

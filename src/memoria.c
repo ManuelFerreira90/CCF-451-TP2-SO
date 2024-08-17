@@ -10,3 +10,21 @@ void alocarMemoriaProcesso(Memoria *memoria, int numVariaveis)
 
     memoria->tamanho += numVariaveis;
 }
+
+void printMemoria(Memoria *memoria)
+{
+    printf("┌─────────────────────────────────────────────┐\n");
+    printf("│             Memoria Estrutura               │\n");
+    printf("├─────────────────────────────────────────────┤\n");
+    printf("│ Tamanho: %-37d │\n", memoria->tamanho);
+    printf("├─────────────────────────────────────────────┤\n");
+    printf("│ Indice │ Valor                             │\n");
+    printf("├─────────────────────────────────────────────┤\n");
+
+    for (int i = 0; i < memoria->tamanho; i++)
+    {
+        printf("│ %6d │ %-32d │\n", i, memoria->memoriaPrincipal[i]);
+    }
+
+    printf("└─────────────────────────────────────────────┘\n");
+}

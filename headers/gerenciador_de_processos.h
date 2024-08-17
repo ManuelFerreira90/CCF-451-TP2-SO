@@ -92,11 +92,11 @@ void iniciarVetorMemoria(CPU *cpu);
 
 // Comandos de controle de simulação (Exemplos: B, D, N, V, A, S, F, R, T)
 void comandoB(GerenciadorProcessos *gerenciador, int indexCPU, int valor);
-void comandoD(CPU *cpu, int index, Memoria memoria);
+void comandoD(CPU *cpu, int index, Memoria *memoria);
 void comandoN(CPU *cpu, int valor);
-void comandoV(CPU *cpu, int index, int valor, Memoria memoria);
-void comandoA(CPU *cpu, int index, int valor, Memoria memoria);
-void comandoS(CPU *cpu, int index, int valor, Memoria memoria);
+void comandoV(CPU *cpu, int index, int valor, Memoria *memoria);
+void comandoA(CPU *cpu, int index, int valor, Memoria *memoria);
+void comandoS(CPU *cpu, int index, int valor, Memoria *memoria);
 void comandoF(GerenciadorProcessos *gerenciador, int index, int valor);
 void comandoR(CPU *cpu, Instrucao instrucao);
 void comandoT(GerenciadorProcessos *gerenciador, int indexCPU);

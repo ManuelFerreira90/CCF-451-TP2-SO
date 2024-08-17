@@ -61,14 +61,6 @@ ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, i
     novoProcesso->EstadosProcesso = Pronto;                   // Define o estado inicial do novo processo como "Pronto"
     novoProcesso->prioridade = processoPai->prioridade;       // Herda a prioridade do processo pai
 
-    // Aloca memória para o vetor de inteiros do novo processo e copia os dados do processo pai
-    novoProcesso->memoria = (int *)malloc(sizeof(int) * processoPai->quantidadeInteiros);
-    if (!novoProcesso->memoria)
-    {
-        // fprintf(stderr, "Erro ao alocar memória para vetor de valores inteiros do novo processo.\n");
-        free(novoProcesso);
-    }
-    memcpy(novoProcesso->memoria, processoPai->memoria, sizeof(int) * processoPai->quantidadeInteiros);
     novoProcesso->quantidadeInteiros = processoPai->quantidadeInteiros;
 
     // Duplica o conjunto de instruções do processo pai para o novo processo
@@ -123,17 +115,8 @@ void imprimirProcesso(ProcessoSimulado *processo)
     printf("| %-20s | %-18d |\n", "Tempo de CPU", processo->tempoCPU.valor);            // Exibe o tempo de CPU
     printf("| %-22s | %-18s |\n", "Conj. de instruções", processo->conjuntoInstrucoes); // Exibe o conjunto de instruções
     printf("| %-20s | %-18d |\n", "Qtd de inteiros", processo->quantidadeInteiros);     // Exibe a quantidade de inteiros
-    printf("| %-21s |", "Memória");
 
-    // Exibe a memória associada ao processo
-    for (int i = 0; i < processo->quantidadeInteiros; i++)
-    {
-        if (i > 0)
-            printf(" ");
-        printf(" %d", processo->memoria[i]);
-    }
-
-    printf("\n=============================================\n");
+    printf("=============================================\n");
 }
 
 char* getInfoPrioridade(int prioridade)
