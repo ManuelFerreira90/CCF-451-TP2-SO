@@ -2,6 +2,7 @@
 #define MEMORIA_H
 
 #include "./instrucao.h"
+#include "./processo.h"
 
 // TODO: Diminuir tamanho da memoria para testes de algoritmo de troca de processos
 // first fit, next fit, best fit e worst fit
@@ -21,6 +22,8 @@ typedef struct {
 
 void alocarMemoriaProcesso(Memoria *memoria, int numVariaveis);
 void printMemoria(Memoria *memoria);
+void swapParaDisco(ProcessoSimulado *processo, Memoria *memoria);
+void recuperarDoDisco(ProcessoSimulado *processo, Memoria *memoria);
 
 #endif // MEMORIA_H
 

@@ -174,6 +174,7 @@ void comandoF(GerenciadorProcessos *gerenciador, int indexCPU, int valor)
 
     // Incrementa o contador de programa da CPU, considerando o valor adicional
     gerenciador->cpus[indexCPU].contadorPrograma += (valor + 1);
+    gerenciador->controleDoDisco++;
 }
 
 // Comando 'R': Substitui o programa do processo simulado em execução
@@ -376,6 +377,9 @@ void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, char *arquiv
         gerenciador->processosEmExecucao[i] = -1; // Inicializa todos os processadores como sem processo em execução.
         iniciarCPU(&gerenciador->cpus[i]);        // Inicializa cada CPU.
     }
+
+    gerenciador->controleDoDisco = 1;
+    processo->linhaDoDisco = gerenciador->controleDoDisco;
 }
 
 // Inicializa a estrutura de escalonamento do tipo Round Robin.

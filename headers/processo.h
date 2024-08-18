@@ -19,7 +19,6 @@ typedef struct
     int PC;                     // Contador de programa (Program Counter), indicando a próxima instrução a ser executada.
     Estados EstadosProcesso;    // Estado atual do processo (e.g., Bloqueado, Pronto, Execução).
     int prioridade;             // Prioridade do processo, usada quando o escalonamento é baseado em prioridade.
-    int *memoria;               // Ponteiro para a memória alocada para o processo.
     int quantidadeInteiros;     // Quantidade de inteiros alocados na memória do processo.
     char *conjuntoInstrucoes;   // Conjunto de instruções que o processo deve executar.
     Tempo tempoInicio;          // Tempo em que o processo foi iniciado.
@@ -28,6 +27,7 @@ typedef struct
     int quantum;                // Tempo máximo que o processo pode usar a CPU antes de ser interrompido.
     int regBase;
     int regLimite;
+    int linhaDoDisco;
 } ProcessoSimulado;
 
 // Declarações de funções para manipulação de processos simulados

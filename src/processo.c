@@ -29,7 +29,6 @@ ProcessoSimulado *inicializaProcesso(char *conjuntoInstrucoes, int quantidadeIns
         processo->quantum = QUANTUM; // Define o quantum de tempo
     }
 
-    processo->memoria = NULL;            // Inicialmente, a memória do processo é NULL
     processo->ID_Processo = ID;          // Atribui o ID ao processo
     processo->ID_Processo_Pai = PID_Pai; // Atribui o ID do processo pai
     processo->tempoInicio.valor = 0;     // Inicializa o tempo de início
@@ -60,6 +59,7 @@ ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, i
     novoProcesso->PC = processoPai->PC + 1;                   // O novo processo continua após a instrução F do processo pai
     novoProcesso->EstadosProcesso = Pronto;                   // Define o estado inicial do novo processo como "Pronto"
     novoProcesso->prioridade = processoPai->prioridade;       // Herda a prioridade do processo pai
+    novoProcesso->linhaDoDisco = processoPai->linhaDoDisco + 1;  
 
     novoProcesso->quantidadeInteiros = processoPai->quantidadeInteiros;
 
@@ -68,7 +68,6 @@ ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, i
     if (!novoProcesso->conjuntoInstrucoes)
     {
         // fprintf(stderr, "Erro ao alocar memória para conjunto de instruções do novo processo.\n");
-        free(novoProcesso->memoria);
         free(novoProcesso);
     }
 

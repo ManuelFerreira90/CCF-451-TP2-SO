@@ -37,6 +37,7 @@ typedef struct
     Tempo tempoMedio;                              // Tempo médio de execução dos processos.
     int processosTerminados;                       // Contador de processos que já terminaram a execução.
     Memoria memoria;                               // Memória compartilhada entre os processos.
+    int controleDoDisco;                           // Controle de disco para troca de contexto.
 } GerenciadorProcessos;
 
 // Declarações de funções para gerenciar processos na simulação
