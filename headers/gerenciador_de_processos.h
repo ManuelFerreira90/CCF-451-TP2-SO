@@ -37,6 +37,8 @@ typedef struct
     Tempo tempoMedio;                              // Tempo médio de execução dos processos.
     int processosTerminados;                       // Contador de processos que já terminaram a execução.
     Memoria memoria;                               // Memória compartilhada entre os processos.
+    MapaDeBits mapaDeBits;                         // Mapa de bits para gerenciar a memória.
+    ProcessosNaMemoriaLista processosNaMemoriaLista; // Lista de processos na memória.
     int controleDoDisco;                           // Controle de disco para troca de contexto.
 } GerenciadorProcessos;
 
