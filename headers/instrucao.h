@@ -10,7 +10,7 @@
 #define NUM_CPUs 4          // Número de CPUs disponíveis para execução dos processos.
 #define QUANTUM 5           // Quantum de tempo utilizado no escalonador Round Robin.
 #define TAM_MEMORIA 1024    // Tamanho da memória disponível para alocação de processos.
-#define DISCO "../disco/disco.txt" // Caminho para o arquivo de disco.
+#define DISCO "disco/disco.txt" // Caminho para o arquivo de disco.
 
 #include <sys/types.h>
 #include <stdio.h>

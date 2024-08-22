@@ -55,6 +55,7 @@ void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, ProcessosNaMemori
     }
     else
     {
+        printf("nao conseue ne moises\n");
         // Não há espaço suficiente, movendo um processo para o disco
         desalocarMemoriaFirstFit(memoria, lista, mapa, tamanho, tabela);
 
@@ -187,7 +188,7 @@ void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *p
 
 void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo)
 {
-    FILE *disco = fopen("./disco/disco.txt", "r");
+    FILE *disco = fopen(DISCO, "r");
 
     if (disco == NULL)
     {
