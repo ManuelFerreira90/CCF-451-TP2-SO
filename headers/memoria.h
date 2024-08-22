@@ -21,35 +21,34 @@ typedef struct {
 typedef struct 
 {
     int bitmap[TAM_MEMORIA];
-    int tamanho;
 } MapaDeBits;
 
-typedef struct ProcessosNaMemoria
-{
-    int id;
-    int quantidadeVariaveis;
-    struct ProcessosNaMemoria *proximo;
-}ProcessosNaMemoria;
+// typedef struct ProcessosNaMemoria
+// {
+//     int id;
+//     int quantidadeVariaveis;
+//     struct ProcessosNaMemoria *proximo;
+// }ProcessosNaMemoria;
 
-typedef struct
-{
-    ProcessosNaMemoria *primeiro;
-    ProcessosNaMemoria *ultimo;
-    int tamanho;
-}ProcessosNaMemoriaLista;
+// typedef struct
+// {
+//     ProcessosNaMemoria *primeiro;
+//     ProcessosNaMemoria *ultimo;
+//     int tamanho;
+// }ProcessosNaMemoriaLista;
 
-void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, ProcessosNaMemoriaLista *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
-void desalocarMemoriaFirstFit(Memoria *memoria, ProcessosNaMemoriaLista *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);
+void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
+void desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);
 void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa);
 void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void iniciarMapaDeBits(MapaDeBits *mapaDeBits);
 void atualizarMapaDeBits(MapaDeBits *mapa, int inicio, int tamanho, int valor);
-void iniciarProcessosNaMemoriaLista(ProcessosNaMemoriaLista *processosNaMemoriaLista);
+void iniciarProcessosNaMemoriaLista(FilaDinamica *lista);
 int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio);
-void adicionarProcesso(ProcessosNaMemoriaLista *lista, int id);
-void removerProcesso(ProcessosNaMemoriaLista *lista, int id);
-int isProcessoNaMemoria(ProcessosNaMemoriaLista *lista, int id);
+void adicionarProcesso(FilaDinamica *lista, int id, int tamanho);
+void removerProcesso(FilaDinamica *lista, int id);
+int isProcessoNaMemoria(FilaDinamica *lista, int id);
 
 #endif // MEMORIA_H
 

@@ -7,6 +7,7 @@
 typedef struct node
 {
     int dado;              // Valor armazenado no nó.
+    int quantidadeVariaveis;
     struct node *proximo;  // Ponteiro para o próximo nó na fila.
 } Node;
 
@@ -29,6 +30,7 @@ int isFilaDinamicaVazia(FilaDinamica *fila);
 
 // Adiciona um novo item ao final da fila.
 void enfileirarDinamica(FilaDinamica *fila, int item);
+void enfileirarDinamicaProcesso(FilaDinamica *fila, int id, int item);
 
 // Remove e retorna o item da frente da fila.
 int desenfileirarDinamica(FilaDinamica *fila);

@@ -41,6 +41,30 @@ void enfileirarDinamica(FilaDinamica *fila, int item)
     fila->tamanho++;  // Incrementa o tamanho da fila
 }
 
+void enfileirarDinamicaProcesso(FilaDinamica *fila, int id, int item)
+{
+    Node *novoNode = (Node *)malloc(sizeof(Node));  // Aloca memória para o novo nó
+    if (novoNode == NULL)
+    {
+        // Caso ocorra um erro de alocação de memória, o programa é encerrado
+        exit(EXIT_FAILURE);
+    }
+    novoNode->dado = id;      // Define o valor do novo nó
+    novoNode->quantidadeVariaveis = item;
+    novoNode->proximo = NULL;   // O novo nó será o último, então seu próximo é NULL
+
+    if (isFilaDinamicaVazia(fila))  // Se a fila estiver vazia, o novo nó é também o primeiro
+    {
+        fila->frente = novoNode;
+    }
+    else  // Caso contrário, o último nó atual aponta para o novo nó
+    {
+        fila->tras->proximo = novoNode;
+    }
+    fila->tras = novoNode;  // O novo nó se torna o último na fila
+    fila->tamanho++;  // Incrementa o tamanho da fila
+}
+
 // Remove e retorna o item na frente da fila dinâmica
 // Se a fila estiver vazia, retorna -1. Caso contrário, remove e retorna o item da frente.
 int desenfileirarDinamica(FilaDinamica *fila)
