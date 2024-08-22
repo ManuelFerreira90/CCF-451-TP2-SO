@@ -75,6 +75,9 @@ ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, i
     novoProcesso->tempoInicio = processoPai->tempoCPU;
     novoProcesso->tempoCPU.valor = 0;
 
+    novoProcesso->regBase = -1;
+    novoProcesso->regLimite = -1;
+
     return novoProcesso; // Retorna o novo processo simulado
 }
 

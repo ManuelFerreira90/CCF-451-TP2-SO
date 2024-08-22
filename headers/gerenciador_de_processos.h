@@ -1,7 +1,7 @@
 #ifndef GERENCIADOR_PROCESSOS_H
 #define GERENCIADOR_PROCESSOS_H
 
-#include "./tabela_de_processos.h"
+#include "./memoria.h"
 
 // Estrutura que agrupa filas de processos prontos e bloqueados, organizadas por prioridades.
 typedef struct
@@ -126,6 +126,7 @@ void imprimirFilas(GerenciadorProcessos *gerenciador);
 int getFatiaTempoPrioridade(int prioridade);
 void verificarBloqueadosFilaDePrioridades(GerenciadorProcessos *gerenciador);
 void verificarBloqueadosRoundRobin(GerenciadorProcessos *gerenciador);
+void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSimulado *processo, int valor);
 //---------------------------------------------------------------------------------------
 
 #endif // GERENCIADOR_PROCESSOS_H

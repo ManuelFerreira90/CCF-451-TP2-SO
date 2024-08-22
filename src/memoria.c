@@ -1,10 +1,5 @@
 #include "../headers/memoria.h"
 
-void iniciarMemoria(Memoria *memoria)
-{
-    memoria->tamanho = 0;
-}
-
 void iniciarMapaDeBits(MapaDeBits *mapaDeBits)
 {
     for (int i = 0; i < TAM_MEMORIA; i++)
@@ -22,31 +17,54 @@ void iniciarProcessosNaMemoriaLista(ProcessosNaMemoriaLista *processosNaMemoriaL
     processosNaMemoriaLista->tamanho = 0;
 }
 
-int alocarMemoriaFirstFit(MapaDeBits *mapa, ProcessosNaMemoriaLista *lista, int tamanho, int idProcesso)
+void printMapaDeBits(MapaDeBits *mapa)
+{
+    printf("┌─────────────────────────────────────────────┐\n");
+    printf("│                 Mapa de Bits                │\n");
+    printf("├─────────────────────────────────────────────┤\n");
+    printf("│ Indice │ Valor                              │\n");
+    printf("├─────────────────────────────────────────────┤\n");
+
+    for (int i = 0; i < 10; i++)
+    {
+        printf("│ %6d │ %-32d │\n", i, mapa->bitmap[i]);
+    }
+
+    printf("└─────────────────────────────────────────────┘\n");
+}
+
+void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, ProcessosNaMemoriaLista *lista, int tamanho, ProcessoSimulado *proceso, tabelaProcessos *tabela)
 {
     int inicio;
     if (localizarBlocoLivre(mapa, tamanho, &inicio))
     {
-        // Aloca memória para o processo
+        // Alocando memória para o processo
         atualizarMapaDeBits(mapa, inicio, tamanho, 1);
+        printMapaDeBits(mapa);
 
-        // Adicione o processo à lista de processos na memória
-        adicionarProcesso(lista, idProcesso);
+        // Adicionando o processo à lista de processos na memória
+        adicionarProcesso(lista, proceso->ID_Processo);
 
-        return inicio;
+        proceso->regBase = inicio;
+        proceso->regLimite = inicio + tamanho;
+
+        printf("Processo %d alocado na memória\n", proceso->ID_Processo);
+        printf("Registrador Base: %d\n", proceso->regBase);
+        printf("Registrador Limite: %d\n", proceso->regLimite);
+        return;
     }
     else
     {
-        // Não há espaço suficiente, mova um processo para o disco
-        // Exemplo de chamada para mover um processo para o disco
-        // moverParaDisco(&processo, mapa, memoria, nomeArquivo);
+        // Não há espaço suficiente, movendo um processo para o disco
+        desalocarMemoriaFirstFit(memoria, lista, mapa, tamanho, tabela);
 
-        // Tente novamente a alocação após liberar espaço
-        alocarMemoriaFirstFit(mapa, lista, tamanho, idProcesso);
+        // Tentando novamente a alocação após liberar espaço
+        alocarMemoriaFirstFit(memoria, mapa, lista, tamanho, proceso->ID_Processo, tabela);
+        return;
     }
 }
 
-void desalocarMemoriaFirstFit(ProcessosNaMemoriaLista *lista, MapaDeBits *mapa, int tamanho)
+void desalocarMemoriaFirstFit(Memoria *memoria, ProcessosNaMemoriaLista *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela)
 {
     ProcessosNaMemoria *atual = lista->primeiro;
     ProcessosNaMemoria *proximo = NULL;
@@ -56,12 +74,17 @@ void desalocarMemoriaFirstFit(ProcessosNaMemoriaLista *lista, MapaDeBits *mapa, 
         proximo = atual->proximo;
         if (tamanho <= atual->quantidadeVariaveis)
         {
-            ProcessoSimulado *processo = getProcessoPorId(atual->id);
+            ProcessoSimulado *processo = getProcesso(tabela, atual->id);
+
+            // Move o processo para o disco
+            swapParaDisco(memoria, mapa, processo);
+
             // Desaloca memória para o processo
             atualizarMapaDeBits(mapa, processo->regBase, atual->quantidadeVariaveis, 0);
 
             // Remove o processo da lista de processos na memória
             removerProcesso(lista, atual->id);
+            return;
         }
         atual = proximo;
     }
@@ -81,12 +104,14 @@ int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio)
     int consecutivos = 0;
     for (int i = 0; i < mapa->tamanho; i++)
     {
+        //printf("Consecutivos: %d\n", consecutivos);
         if (mapa->bitmap[i] == 0)
         {
             consecutivos++;
             if (consecutivos == tamanho)
             {
                 *inicio = i - tamanho + 1;
+                printf("Espaço livre encontrado na posição %d\n", *inicio);
                 return 1; // Encontrou espaço livre
             }
         }
@@ -95,30 +120,47 @@ int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio)
             consecutivos = 0;
         }
     }
+    printf("Não há espaço suficiente na memória\n");
     return 0; // Não encontrou espaço livre suficiente
 }
 
-void printMemoria(Memoria *memoria)
+int isProcessoNaMemoria(ProcessosNaMemoriaLista *lista, int id)
+{
+    ProcessosNaMemoria *atual = lista->primeiro;
+
+    while (atual != NULL)
+    {
+        if (atual->id == id)
+        {
+            return 1;
+        }
+        atual = atual->proximo;
+    }
+
+    return 0;
+}
+
+void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa)
 {
     printf("┌─────────────────────────────────────────────┐\n");
-    printf("│             Memoria Estrutura               │\n");
-    printf("├─────────────────────────────────────────────┤\n");
-    printf("│ Tamanho: %-37d │\n", memoria->tamanho);
+    printf("│             Memoria Preenchida              │\n");
     printf("├─────────────────────────────────────────────┤\n");
     printf("│ Indice │ Valor                              │\n");
     printf("├─────────────────────────────────────────────┤\n");
 
-    for (int i = 0; i < memoria->tamanho; i++)
+    for (int i = 0; i < mapa->tamanho; i++)
     {
-        printf("│ %6d │ %-32d │\n", i, memoria->memoriaPrincipal[i]);
+        if (mapa->bitmap[i] == 1)  // Verifica se o bit está preenchido
+        {
+            printf("│ %6d │ %-32d │\n", i, memoria->memoriaPrincipal[i]);
+        }
     }
 
     printf("└─────────────────────────────────────────────┘\n");
 }
 
-void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, int idProcesso)
+void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo)
 {
-    ProcessoSimulado *processo = getProcessoPorId(idProcesso);
 
     FILE *disco = fopen(DISCO, "a");
 
@@ -143,11 +185,9 @@ void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, int idProcesso)
     atualizarMapaDeBits(&mapaDeBits, processo->regBase, processo->quantidadeInteiros, 0);
 }
 
-void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, int idProcesso)
+void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo)
 {
-    ProcessoSimulado *processo = getProcessoPorId(idProcesso);
-
-    FILE *disco = fopen(DISCO, "r");
+    FILE *disco = fopen("./disco/disco.txt", "r");
 
     if (disco == NULL)
     {
@@ -235,4 +275,3 @@ void removerProcesso(ProcessosNaMemoriaLista *lista, int id)
     free(atual);
     lista->tamanho--;
 }
-

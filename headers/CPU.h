@@ -1,7 +1,7 @@
 #ifndef CPU_H
 #define CPU_H
 
-#include "./memoria.h"
+#include "./processo.h"
 
 // Estrutura que representa uma CPU simulada.
 typedef struct CPU

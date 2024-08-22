@@ -34,6 +34,5 @@ Para compilar o código, navegue até o diretório raiz do projeto e utilize o c
 
 ```bash
 make clean
-make
 make run
 ```

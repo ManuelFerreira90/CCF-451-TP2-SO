@@ -2,7 +2,7 @@
 #define MEMORIA_H
 
 
-#include "./processo.h"
+#include "./tabela_de_processos.h"
 
 // TODO: Diminuir tamanho da memoria para testes de algoritmo de troca de processos
 // first fit, next fit, best fit e worst fit
@@ -13,11 +13,9 @@
 // - tempo médio de alocação considerando o número médio de nós percorridos na alocação;
 // - número de vezes que um processo teve que ser levado para o "disco", para liberar espaço na memória;
 
-
 // Definição da estrutura Memoria, que representa a memória principal do sistema
 typedef struct {
     int memoriaPrincipal[TAM_MEMORIA];  // Array que armazena os dados na memória principal
-    int tamanho;                        // Tamanho atual da memória (número de elementos armazenados)
 } Memoria;
 
 typedef struct 
@@ -26,11 +24,11 @@ typedef struct
     int tamanho;
 } MapaDeBits;
 
-typedef struct
+typedef struct ProcessosNaMemoria
 {
     int id;
     int quantidadeVariaveis;
-    ProcessosNaMemoria *proximo;
+    struct ProcessosNaMemoria *proximo;
 }ProcessosNaMemoria;
 
 typedef struct
@@ -40,18 +38,18 @@ typedef struct
     int tamanho;
 }ProcessosNaMemoriaLista;
 
-int alocarMemoriaFirstFit(MapaDeBits *mapa, ProcessosNaMemoriaLista *lista, int tamanho, int idProcesso);
-void printMemoria(Memoria *memoria);
-void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, int idProcesso);
-void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, int idProcesso);
+void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, ProcessosNaMemoriaLista *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
+void desalocarMemoriaFirstFit(Memoria *memoria, ProcessosNaMemoriaLista *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);
+void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa);
+void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
+void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void iniciarMapaDeBits(MapaDeBits *mapaDeBits);
-void iniciarMemoria(Memoria *memoria);
 void atualizarMapaDeBits(MapaDeBits *mapa, int inicio, int tamanho, int valor);
 void iniciarProcessosNaMemoriaLista(ProcessosNaMemoriaLista *processosNaMemoriaLista);
 int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio);
 void adicionarProcesso(ProcessosNaMemoriaLista *lista, int id);
 void removerProcesso(ProcessosNaMemoriaLista *lista, int id);
-void desalocarMemoriaFirstFit(ProcessosNaMemoriaLista *lista, MapaDeBits *mapa, int tamanho);
+int isProcessoNaMemoria(ProcessosNaMemoriaLista *lista, int id);
 
 #endif // MEMORIA_H
 

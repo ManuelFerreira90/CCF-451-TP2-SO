@@ -180,6 +180,7 @@ void comandoF(GerenciadorProcessos *gerenciador, int indexCPU, int valor)
 // Comando 'R': Substitui o programa do processo simulado em execução
 void comandoR(CPU *cpu, Instrucao instrucao)
 {
+    printf("Processo %d: Trocando programa para %s\n", cpu->processoEmExecucao->ID_Processo, instrucao.arquivo);
     // Copia o nome do arquivo de instruções para o conjunto de instruções do processo
     strcpy(cpu->processoEmExecucao->conjuntoInstrucoes, instrucao.arquivo);
 
@@ -196,6 +197,8 @@ void comandoT(GerenciadorProcessos *gerenciador, int indexCPU)
 
     // Obtém o processo simulado a partir do índice
     ProcessoSimulado *processo = getProcesso(&gerenciador->TabelaProcessos, processoIndex);
+
+    swapParaDisco(&(gerenciador->memoria), &(gerenciador->mapaDeBits), processo);
 
     // Se o processo for válido, termina-o
     if (processo != NULL)
@@ -215,6 +218,24 @@ void comandoT(GerenciadorProcessos *gerenciador, int indexCPU)
     }
 }
 
+void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSimulado *processo, int valor)
+{
+    if (isProcessoNaMemoria(&gerenciador->processosNaMemoriaLista, processo->ID_Processo))
+    {
+        return;
+    }
+    else
+    {
+        printf("\ncheck\n");
+        alocarMemoriaFirstFit(&(gerenciador->memoria), &(gerenciador->mapaDeBits), &(gerenciador->processosNaMemoriaLista), processo->quantidadeInteiros, processo, &(gerenciador->TabelaProcessos));
+        
+        if(processo->PC > 0)
+        {
+            recuperarDoDisco(&(gerenciador->memoria), &(gerenciador->mapaDeBits), processo);
+        }
+    }
+}
+
 // Processa um comando específico para um determinado processo em execução.
 // Dependendo do comando contido na estrutura Instrucao, executa a ação correspondente.
 void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, int indexCPU)
@@ -223,53 +244,59 @@ void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, in
     {
     case 'N':
         // Cria um vetor de memória com o tamanho especificado em instrucao.valor.
-        gerenciador->cpus[indexCPU].processoEmExecucao->regBase = gerenciador->memoria.tamanho;
-        alocarMemoriaProcesso(&(gerenciador->memoria), instrucao.valor);
-        gerenciador->cpus[indexCPU].processoEmExecucao->regLimite = gerenciador->memoria.tamanho;
-        
         comandoN(&(gerenciador->cpus[indexCPU]), instrucao.valor);
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         break;
     case 'D':
         // Declara uma nova variável no processo atual, inicializando-a com 0.
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         comandoD(&(gerenciador->cpus[indexCPU]), instrucao.valor, &(gerenciador->memoria));
         break;
     case 'V':
         // Define o valor de uma variável na memória do processo atual.
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         comandoV(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'A':
         // Adiciona o valor especificado a uma variável existente na memória do processo atual.
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         comandoA(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'S':
         // Subtrai o valor especificado de uma variável existente na memória do processo atual.
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         comandoS(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'B':
         // Bloqueia o processo em execução, movendo-o para a fila de processos bloqueados.
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         comandoB(gerenciador, indexCPU, instrucao.valor);
         break;
     case 'T':
         // Termina o processo atual, removendo-o da tabela de processos e atualizando as métricas.
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         comandoT(gerenciador, indexCPU);
         break;
     case 'F':
         // Cria um novo processo simulado com base no processo atual e adiciona-o à fila apropriada.
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         comandoF(gerenciador, indexCPU, instrucao.valor);
         break;
     case 'R':
         // Substitui o programa do processo simulado com o conteúdo do arquivo especificado na instrução.
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor);
         comandoR(&(gerenciador->cpus[indexCPU]), instrucao);
         break;
     default:
         // Comando não reconhecido; não realiza nenhuma ação.
         break;
     }
+
     // Decrementa o valor do tempo de fatia da CPU.
     gerenciador->cpus[indexCPU].fatiaTempo.valor--;
     // Atualiza os dados do processo na CPU após a execução do comando.
     atualizaDadosProcesso(&(gerenciador->cpus[indexCPU]));
-    printMemoria(&gerenciador->memoria);
+    printMemoriaPreenchida(&gerenciador->memoria, &gerenciador->mapaDeBits);
 }
 
 // Inicializa o vetor de memória para a CPU com base na memória do processo em execução.
@@ -291,7 +318,7 @@ void iniciarCPU(CPU *cpu)
 
     cpu->contadorPrograma = 0; // Zera o contador de programa.
 
-    //cpu->memoriaVect = NULL; // Inicialmente, sem memória associada.
+    // cpu->memoriaVect = NULL; // Inicialmente, sem memória associada.
 }
 
 // Função que retorna o número de linhas no arquivo até o primeiro comando 'F' encontrado.
@@ -338,7 +365,6 @@ void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, char *arquiv
     gerenciador->processosTerminados = 0;
     gerenciador->tempoMedio.valor = 0;
     gerenciador->algoritmoEscalonamento = escalonador;
-    gerenciador->memoria.tamanho = 0;
 
     // Inicializa a tabela de processos e cria o processo inicial a partir do arquivo de entrada.
     inicializarTabelaProcessos(&(gerenciador->TabelaProcessos));
@@ -380,6 +406,10 @@ void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, char *arquiv
 
     gerenciador->controleDoDisco = 1;
     processo->linhaDoDisco = gerenciador->controleDoDisco;
+
+    // TODO: mudar memoria para um outro módulo gerenciador de memória
+    iniciarMapaDeBits(&gerenciador->mapaDeBits);
+    iniciarProcessosNaMemoriaLista(&gerenciador->processosNaMemoriaLista);
 }
 
 // Inicializa a estrutura de escalonamento do tipo Round Robin.
@@ -686,7 +716,7 @@ void trocaDeContextoFilaDePrioridade(GerenciadorProcessos *gerenciador)
         if (idProcesso != -1)
         {
             ProcessoSimulado *processo = getProcesso(&gerenciador->TabelaProcessos, idProcesso);
-            
+
             // Aumenta a prioridade do processo se não for a máxima.
             if (processo->prioridade < NUM_PRIORIDADES - 1)
             {
@@ -823,17 +853,16 @@ int getFatiaTempoPrioridade(int prioridade)
 void verificarBloqueadosFilaDePrioridades(GerenciadorProcessos *gerenciador)
 {
     // Percorrer cada fila de bloqueados de acordo com a prioridade
-    for(int i = 0; i < NUM_PRIORIDADES; i++)
+    for (int i = 0; i < NUM_PRIORIDADES; i++)
     {
         FilaDinamica *filaBloqueados = &(gerenciador->EstruturaEscalonamento.filaPrioridades.filasBloqueados[i]);
         Node *atual = filaBloqueados->frente;
 
-        
-        while(atual != NULL)
+        while (atual != NULL)
         {
             ProcessoSimulado *processo = getProcesso(gerenciador, atual->dado);
 
-            if(processo->tempoBloqueado.valor == 0)
+            if (processo->tempoBloqueado.valor == 0)
             {
                 Node *proximo = atual->proximo; // Salva o próximo nó antes de remover o atual
                 removerNo(filaBloqueados, atual);
@@ -854,11 +883,11 @@ void verificarBloqueadosRoundRobin(GerenciadorProcessos *gerenciador)
     FilaDinamica *filaBloqueados = &(gerenciador->EstruturaEscalonamento.roundRobin.filaBloqueado);
     Node *atual = filaBloqueados->frente;
 
-    while(atual != NULL)
+    while (atual != NULL)
     {
         ProcessoSimulado *processo = getProcesso(gerenciador, atual->dado);
 
-        if(processo->tempoBloqueado.valor == 0)
+        if (processo->tempoBloqueado.valor == 0)
         {
             Node *proximo = atual->proximo; // Salva o próximo nó antes de remover o atual
             removerNo(filaBloqueados, atual);
