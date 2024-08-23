@@ -45,6 +45,8 @@ void liberarFilaDinamica(FilaDinamica *fila);
 void imprimirFilaDinamica(FilaDinamica *fila);
 
 void removerNo(FilaDinamica *fila, Node *no);
+
+void removerNoPorValor(FilaDinamica *fila, int valor);
 //---------------------------------------------------------------------------------------
 
 #endif

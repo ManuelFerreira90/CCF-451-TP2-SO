@@ -34,7 +34,7 @@ ProcessoSimulado *inicializaProcesso(char *conjuntoInstrucoes, int quantidadeIns
     processo->tempoInicio.valor = 0;     // Inicializa o tempo de início
     processo->tempoCPU.valor = 0;        // Inicializa o tempo de CPU
     processo->quantidadeInteiros = 0;    // Inicializa a quantidade de inteiros
-
+    processo->isExecutado = 0;
     processo->conjuntoInstrucoes = conjuntoInstrucoes;   // Atribui o conjunto de instruções
 
     return processo; // Retorna o processo simulado recém-criado
@@ -43,7 +43,7 @@ ProcessoSimulado *inicializaProcesso(char *conjuntoInstrucoes, int quantidadeIns
 // Função para criar um novo processo a partir de um processo pai
 // Recebe o processo pai e o ID do novo processo
 // Retorna um ponteiro para o novo processo simulado.
-ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, int ID_processo)
+ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, int ID_processo, int linhaDisco)
 {
     // Aloca memória para o novo processo simulado
     ProcessoSimulado *novoProcesso = (ProcessoSimulado *)malloc(sizeof(ProcessoSimulado));
@@ -59,7 +59,7 @@ ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, i
     novoProcesso->PC = processoPai->PC + 1;                   // O novo processo continua após a instrução F do processo pai
     novoProcesso->EstadosProcesso = Pronto;                   // Define o estado inicial do novo processo como "Pronto"
     novoProcesso->prioridade = processoPai->prioridade;       // Herda a prioridade do processo pai
-    novoProcesso->linhaDoDisco = processoPai->linhaDoDisco + 1;  
+    novoProcesso->linhaDoDisco = linhaDisco;  
 
     novoProcesso->quantidadeInteiros = processoPai->quantidadeInteiros;
 
@@ -77,6 +77,7 @@ ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, i
 
     novoProcesso->regBase = -1;
     novoProcesso->regLimite = -1;
+    novoProcesso->isExecutado = 0;
 
     return novoProcesso; // Retorna o novo processo simulado
 }

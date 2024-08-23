@@ -155,7 +155,7 @@ void comandoS(CPU *cpu, int index, int valor, Memoria *memoria)
 void comandoF(GerenciadorProcessos *gerenciador, int indexCPU, int valor)
 {
     // Cria um novo processo simulado a partir do processo pai (o processo em execução)
-    ProcessoSimulado *novoProcesso = criarNovoProcessoAPartirdoPai(gerenciador->cpus[indexCPU].processoEmExecucao, gerenciador->TabelaProcessos.ultimoProcessoIndex);
+    ProcessoSimulado *novoProcesso = criarNovoProcessoAPartirdoPai(gerenciador->cpus[indexCPU].processoEmExecucao, gerenciador->TabelaProcessos.ultimoProcessoIndex, gerenciador->controleDoDisco);
 
     // Insere o novo processo na tabela de processos do gerenciador
     inserirTabelaProcessos(novoProcesso, &(gerenciador->TabelaProcessos));
@@ -175,6 +175,8 @@ void comandoF(GerenciadorProcessos *gerenciador, int indexCPU, int valor)
     // Incrementa o contador de programa da CPU, considerando o valor adicional
     gerenciador->cpus[indexCPU].contadorPrograma += (valor + 1);
     gerenciador->controleDoDisco++;
+
+    printf("\n novo precsso isExecutado: %d\n", novoProcesso->isExecutado);
 }
 
 // Comando 'R': Substitui o programa do processo simulado em execução
@@ -198,7 +200,10 @@ void comandoT(GerenciadorProcessos *gerenciador, int indexCPU)
     // Obtém o processo simulado a partir do índice
     ProcessoSimulado *processo = getProcesso(&gerenciador->TabelaProcessos, processoIndex);
 
+    printf("\nTerminando processo %d\n", processo->ID_Processo);
+
     swapParaDisco(&(gerenciador->memoria), &(gerenciador->mapaDeBits), processo);
+    removerNoPorValor(&(gerenciador->processosNaMemoriaLista), processo->ID_Processo);
 
     // Se o processo for válido, termina-o
     if (processo != NULL)
@@ -216,9 +221,10 @@ void comandoT(GerenciadorProcessos *gerenciador, int indexCPU)
         // Reinicia a CPU especificada para estar pronta para executar um novo processo
         iniciarCPU(&gerenciador->cpus[indexCPU]);
     }
+
 }
 
-void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSimulado *processo, int valor, int r)
+void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSimulado *processo)
 {
     if (isProcessoNaMemoria(&gerenciador->processosNaMemoriaLista, processo->ID_Processo))
     {
@@ -226,12 +232,13 @@ void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSim
     }
     else
     {
-        printf("id do processo: %d", processo->ID_Processo);
-        printf("\ncheck\n");
+        printf("Processo %d não está na memória\n", processo->ID_Processo);
+        imprimirFilaDinamica(&gerenciador->processosNaMemoriaLista);
         alocarMemoriaFirstFit(&(gerenciador->memoria), &(gerenciador->mapaDeBits), &(gerenciador->processosNaMemoriaLista), processo->quantidadeInteiros, processo, &(gerenciador->TabelaProcessos));
-        printf("\ncheck2\n");
-        if(processo->PC > 0 && r == 1)
+        printf("Processo %d alocado na memória\n", processo->ID_Processo);
+        if(processo->isExecutado == 1)
         {
+            printf("Recuperando processo %d da memória\n", processo->ID_Processo);
             recuperarDoDisco(&(gerenciador->memoria), &(gerenciador->mapaDeBits), processo);
         }
     }
@@ -246,53 +253,46 @@ void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, in
     case 'N':
         // Cria um vetor de memória com o tamanho especificado em instrucao.valor.
         comandoN(&(gerenciador->cpus[indexCPU]), instrucao.valor);
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 0);
+        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao);
+        gerenciador->cpus[indexCPU].processoEmExecucao->isExecutado = 1;
         break;
     case 'D':
         // Declara uma nova variável no processo atual, inicializando-a com 0.
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 0);
         comandoD(&(gerenciador->cpus[indexCPU]), instrucao.valor, &(gerenciador->memoria));
         break;
     case 'V':
         // Define o valor de uma variável na memória do processo atual.
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 0);
         comandoV(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'A':
         // Adiciona o valor especificado a uma variável existente na memória do processo atual.
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 0);
         comandoA(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'S':
         // Subtrai o valor especificado de uma variável existente na memória do processo atual.
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 0);
         comandoS(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
         break;
     case 'B':
         // Bloqueia o processo em execução, movendo-o para a fila de processos bloqueados.
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 0);
         comandoB(gerenciador, indexCPU, instrucao.valor);
         break;
     case 'T':
         // Termina o processo atual, removendo-o da tabela de processos e atualizando as métricas.
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 0);
         comandoT(gerenciador, indexCPU);
         break;
     case 'F':
         // Cria um novo processo simulado com base no processo atual e adiciona-o à fila apropriada.
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 0);
         comandoF(gerenciador, indexCPU, instrucao.valor);
         break;
     case 'R':
         // Substitui o programa do processo simulado com o conteúdo do arquivo especificado na instrução.
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao, instrucao.valor, 1);
         comandoR(&(gerenciador->cpus[indexCPU]), instrucao);
         break;
     default:
         // Comando não reconhecido; não realiza nenhuma ação.
         break;
     }
-
+    
     // Decrementa o valor do tempo de fatia da CPU.
     gerenciador->cpus[indexCPU].fatiaTempo.valor--;
     // Atualiza os dados do processo na CPU após a execução do comando.
@@ -405,8 +405,9 @@ void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, char *arquiv
         iniciarCPU(&gerenciador->cpus[i]);        // Inicializa cada CPU.
     }
 
-    gerenciador->controleDoDisco = 1;
+    gerenciador->controleDoDisco = 0;
     processo->linhaDoDisco = gerenciador->controleDoDisco;
+    gerenciador->controleDoDisco++;
 
     // TODO: mudar memoria para um outro módulo gerenciador de memória
     iniciarMapaDeBits(&gerenciador->mapaDeBits);
@@ -568,6 +569,11 @@ void atualizarProcessoEmExecucao(GerenciadorProcessos *gerenciador, int cpuIndex
 
     // TODO : Verificar se a fatia de tempo é apropriada para o processo.
     gerenciador->cpus[cpuIndex].fatiaTempo.valor = processo->quantum;
+
+    if(gerenciador->cpus[cpuIndex].processoEmExecucao->isExecutado)
+    {
+        gerenciarMemoriaParaProcesso(gerenciador, processo);
+    }
 }
 
 // Imprime uma descrição simplificada de uma instrução de comando.

@@ -28,6 +28,7 @@ typedef struct
     int regBase;
     int regLimite;
     int linhaDoDisco;
+    int isExecutado;
 } ProcessoSimulado;
 
 // Declarações de funções para manipulação de processos simulados
@@ -37,7 +38,7 @@ typedef struct
 ProcessoSimulado *inicializaProcesso(char *conjuntoInstrucoes, int quantidadeInstrucao, int PID_pai, int id, int algoritmoEscalonamento);
 
 // Cria um novo processo a partir de um processo pai, herdando suas características.
-ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, int ID_processo);
+ProcessoSimulado *criarNovoProcessoAPartirdoPai(ProcessoSimulado *processoPai, int ID_processo, int linhaDisco);
 
 // Imprime as informações detalhadas de um processo simulado.
 void imprimirProcesso(ProcessoSimulado *processo);

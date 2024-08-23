@@ -126,7 +126,7 @@ void imprimirFilas(GerenciadorProcessos *gerenciador);
 int getFatiaTempoPrioridade(int prioridade);
 void verificarBloqueadosFilaDePrioridades(GerenciadorProcessos *gerenciador);
 void verificarBloqueadosRoundRobin(GerenciadorProcessos *gerenciador);
-void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSimulado *processo, int valor, int r);
+void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSimulado *processo);
 //---------------------------------------------------------------------------------------
 
 #endif // GERENCIADOR_PROCESSOS_H

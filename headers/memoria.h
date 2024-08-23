@@ -23,19 +23,6 @@ typedef struct
     int bitmap[TAM_MEMORIA];
 } MapaDeBits;
 
-// typedef struct ProcessosNaMemoria
-// {
-//     int id;
-//     int quantidadeVariaveis;
-//     struct ProcessosNaMemoria *proximo;
-// }ProcessosNaMemoria;
-
-// typedef struct
-// {
-//     ProcessosNaMemoria *primeiro;
-//     ProcessosNaMemoria *ultimo;
-//     int tamanho;
-// }ProcessosNaMemoriaLista;
 
 void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
 void desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);

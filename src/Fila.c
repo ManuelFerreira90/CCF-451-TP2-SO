@@ -156,3 +156,36 @@ void removerNo(FilaDinamica *fila, Node *no)
     fila->tamanho--;
     free(no); // Libera a memória do nó removido
 }
+
+void removerNoPorValor(FilaDinamica *fila, int valor)
+{
+    Node *atual = fila->frente;
+    Node *anterior = NULL;
+
+    while (atual != NULL)
+    {
+        if (atual->dado == valor)
+        {
+            if (anterior == NULL)
+            {
+                fila->frente = atual->proximo;
+            }
+            else
+            {
+                anterior->proximo = atual->proximo;
+            }
+
+            if (atual == fila->tras)
+            {
+                fila->tras = anterior;
+            }
+
+            free(atual);
+            fila->tamanho--;
+            return;
+        }
+
+        anterior = atual;
+        atual = atual->proximo;
+    }
+}
