@@ -152,10 +152,10 @@ void comandoS(CPU *cpu, int index, int valor, Memoria *memoria)
 }
 
 // Comando 'F': Cria um novo processo simulado a partir do processo em execução
-void comandoF(GerenciadorProcessos *gerenciador, int indexCPU, int valor)
+void comandoF(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, int indexCPU, int valor)
 {
     // Cria um novo processo simulado a partir do processo pai (o processo em execução)
-    ProcessoSimulado *novoProcesso = criarNovoProcessoAPartirdoPai(gerenciador->cpus[indexCPU].processoEmExecucao, gerenciador->TabelaProcessos.ultimoProcessoIndex, gerenciador->controleDoDisco);
+    ProcessoSimulado *novoProcesso = criarNovoProcessoAPartirdoPai(gerenciador->cpus[indexCPU].processoEmExecucao, gerenciador->TabelaProcessos.ultimoProcessoIndex, gerenciadorMemoria->controleDoDisco);
 
     // Insere o novo processo na tabela de processos do gerenciador
     inserirTabelaProcessos(novoProcesso, &(gerenciador->TabelaProcessos));
@@ -174,7 +174,8 @@ void comandoF(GerenciadorProcessos *gerenciador, int indexCPU, int valor)
 
     // Incrementa o contador de programa da CPU, considerando o valor adicional
     gerenciador->cpus[indexCPU].contadorPrograma += (valor + 1);
-    gerenciador->controleDoDisco++;
+
+    incrementoControleDisco(gerenciadorMemoria);
 
     printf("\n novo precsso isExecutado: %d\n", novoProcesso->isExecutado);
 }
@@ -192,7 +193,7 @@ void comandoR(CPU *cpu, Instrucao instrucao)
 }
 
 // Comando 'T': Termina o processo em execução na CPU especificada
-void comandoT(GerenciadorProcessos *gerenciador, int indexCPU)
+void comandoT(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, int indexCPU)
 {
     // Obtém o índice do processo em execução
     int processoIndex = gerenciador->processosEmExecucao[indexCPU];
@@ -202,8 +203,7 @@ void comandoT(GerenciadorProcessos *gerenciador, int indexCPU)
 
     printf("\nTerminando processo %d\n", processo->ID_Processo);
 
-    swapParaDisco(&(gerenciador->memoria), &(gerenciador->mapaDeBits), processo);
-    removerNoPorValor(&(gerenciador->processosNaMemoriaLista), processo->ID_Processo);
+    gerenciarTerminoProcesso(gerenciadorMemoria, processo);
 
     // Se o processo for válido, termina-o
     if (processo != NULL)
@@ -224,53 +224,33 @@ void comandoT(GerenciadorProcessos *gerenciador, int indexCPU)
 
 }
 
-void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSimulado *processo)
-{
-    if (isProcessoNaMemoria(&gerenciador->processosNaMemoriaLista, processo->ID_Processo))
-    {
-        return;
-    }
-    else
-    {
-        printf("Processo %d não está na memória\n", processo->ID_Processo);
-        imprimirFilaDinamica(&gerenciador->processosNaMemoriaLista);
-        alocarMemoriaFirstFit(&(gerenciador->memoria), &(gerenciador->mapaDeBits), &(gerenciador->processosNaMemoriaLista), processo->quantidadeInteiros, processo, &(gerenciador->TabelaProcessos));
-        printf("Processo %d alocado na memória\n", processo->ID_Processo);
-        if(processo->isExecutado == 1)
-        {
-            printf("Recuperando processo %d da memória\n", processo->ID_Processo);
-            recuperarDoDisco(&(gerenciador->memoria), &(gerenciador->mapaDeBits), processo);
-        }
-    }
-}
-
 // Processa um comando específico para um determinado processo em execução.
 // Dependendo do comando contido na estrutura Instrucao, executa a ação correspondente.
-void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, int indexCPU)
+void processarComando(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, Instrucao instrucao, int indexCPU)
 {
     switch (instrucao.comando)
     {
     case 'N':
         // Cria um vetor de memória com o tamanho especificado em instrucao.valor.
         comandoN(&(gerenciador->cpus[indexCPU]), instrucao.valor);
-        gerenciarMemoriaParaProcesso(gerenciador, gerenciador->cpus[indexCPU].processoEmExecucao);
+        gerenciarMemoriaParaProcesso(gerenciadorMemoria, gerenciador->cpus[indexCPU].processoEmExecucao, &gerenciador->TabelaProcessos);
         gerenciador->cpus[indexCPU].processoEmExecucao->isExecutado = 1;
         break;
     case 'D':
         // Declara uma nova variável no processo atual, inicializando-a com 0.
-        comandoD(&(gerenciador->cpus[indexCPU]), instrucao.valor, &(gerenciador->memoria));
+        comandoD(&(gerenciador->cpus[indexCPU]), instrucao.valor, &(gerenciadorMemoria->memoria));
         break;
     case 'V':
         // Define o valor de uma variável na memória do processo atual.
-        comandoV(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
+        comandoV(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciadorMemoria->memoria));
         break;
     case 'A':
         // Adiciona o valor especificado a uma variável existente na memória do processo atual.
-        comandoA(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
+        comandoA(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciadorMemoria->memoria));
         break;
     case 'S':
         // Subtrai o valor especificado de uma variável existente na memória do processo atual.
-        comandoS(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciador->memoria));
+        comandoS(&(gerenciador->cpus[indexCPU]), instrucao.index, instrucao.valor, &(gerenciadorMemoria->memoria));
         break;
     case 'B':
         // Bloqueia o processo em execução, movendo-o para a fila de processos bloqueados.
@@ -278,11 +258,11 @@ void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, in
         break;
     case 'T':
         // Termina o processo atual, removendo-o da tabela de processos e atualizando as métricas.
-        comandoT(gerenciador, indexCPU);
+        comandoT(gerenciador, gerenciadorMemoria, indexCPU);
         break;
     case 'F':
         // Cria um novo processo simulado com base no processo atual e adiciona-o à fila apropriada.
-        comandoF(gerenciador, indexCPU, instrucao.valor);
+        comandoF(gerenciador, gerenciadorMemoria, indexCPU, instrucao.valor);
         break;
     case 'R':
         // Substitui o programa do processo simulado com o conteúdo do arquivo especificado na instrução.
@@ -297,7 +277,7 @@ void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, in
     gerenciador->cpus[indexCPU].fatiaTempo.valor--;
     // Atualiza os dados do processo na CPU após a execução do comando.
     atualizaDadosProcesso(&(gerenciador->cpus[indexCPU]));
-    printMemoriaPreenchida(&gerenciador->memoria, &gerenciador->mapaDeBits);
+    printMemoriaPreenchida(&gerenciadorMemoria->memoria, &gerenciadorMemoria->mapaDeBits);
 }
 
 // Inicializa o vetor de memória para a CPU com base na memória do processo em execução.
@@ -353,7 +333,7 @@ int contarQuantidadeInstrucoes(const char *filename)
 
 // Inicializa o Gerenciador de Processos com base nos parâmetros fornecidos.
 // Configura o número de CPUs, o algoritmo de escalonamento e o processo inicial.
-void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, char *arquivoEntrada, int PID_Pai, int numsCPUs, int escalonador)
+void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, char *arquivoEntrada, int PID_Pai, int numsCPUs, int escalonador)
 {
     printf("Iniciando gerenciador de processos...\n");
     printf("Iniciado com %d CPUs\n", numsCPUs);
@@ -405,13 +385,8 @@ void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, char *arquiv
         iniciarCPU(&gerenciador->cpus[i]);        // Inicializa cada CPU.
     }
 
-    gerenciador->controleDoDisco = 0;
-    processo->linhaDoDisco = gerenciador->controleDoDisco;
-    gerenciador->controleDoDisco++;
-
-    // TODO: mudar memoria para um outro módulo gerenciador de memória
-    iniciarMapaDeBits(&gerenciador->mapaDeBits);
-    inicializarFilaDinamica(&gerenciador->processosNaMemoriaLista);
+    processo->linhaDoDisco = getControleDisco(gerenciadorMemoria);
+    incrementoControleDisco(gerenciadorMemoria);
 }
 
 // Inicializa a estrutura de escalonamento do tipo Round Robin.
@@ -553,7 +528,7 @@ Instrucao processarLinhaEspecifica(char *caminhoArquivo, int numeroLinha)
 
 // Atualiza o estado de um processo em execução na CPU especificada.
 // Configura a CPU com o processo e as informações correspondentes.
-void atualizarProcessoEmExecucao(GerenciadorProcessos *gerenciador, int cpuIndex, int processoId)
+void atualizarProcessoEmExecucao(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, int cpuIndex, int processoId)
 {
     ProcessoSimulado *processo = getProcesso(&gerenciador->TabelaProcessos, processoId);
 
@@ -572,7 +547,7 @@ void atualizarProcessoEmExecucao(GerenciadorProcessos *gerenciador, int cpuIndex
 
     if(gerenciador->cpus[cpuIndex].processoEmExecucao->isExecutado)
     {
-        gerenciarMemoriaParaProcesso(gerenciador, processo);
+        gerenciarMemoriaParaProcesso(gerenciadorMemoria, processo, &gerenciador->TabelaProcessos);
     }
 }
 
@@ -610,7 +585,7 @@ void printInstrucaoSimplificada(Instrucao instrucao, int cpuIndex, int processoI
 
 // Executa o processo em cada CPU, processando a próxima instrução.
 // Lê a instrução atual, imprime uma representação simplificada e a processa.
-void executandoProcessoCPU(GerenciadorProcessos *gerenciador)
+void executandoProcessoCPU(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria)
 {
     Instrucao instrucao;
     for (int i = 0; i < gerenciador->quantidadeCPUs; i++)
@@ -624,7 +599,7 @@ void executandoProcessoCPU(GerenciadorProcessos *gerenciador)
             {
                 // Imprime uma descrição simplificada da instrução e processa o comando.
                 printInstrucaoSimplificada(instrucao, i, gerenciador->cpus[i].processoEmExecucao->ID_Processo);
-                processarComando(gerenciador, instrucao, i);
+                processarComando(gerenciador, gerenciadorMemoria, instrucao, i);
             }
         }
     }
@@ -632,7 +607,7 @@ void executandoProcessoCPU(GerenciadorProcessos *gerenciador)
 
 // Coloca um processo na CPU especificada da fila de prioridades.
 // Desenfileira um processo pronto para a CPU e o atualiza.
-void colocaProcessoNaCPUFilaDePrioridades(GerenciadorProcessos *gerenciador, int cpuIndex)
+void colocaProcessoNaCPUFilaDePrioridades(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, int cpuIndex)
 {
     int processoId = -1;
 
@@ -649,7 +624,7 @@ void colocaProcessoNaCPUFilaDePrioridades(GerenciadorProcessos *gerenciador, int
         if (processoId != -1)
         {
             // Atualiza a CPU com o processo desenfileirado.
-            atualizarProcessoEmExecucao(gerenciador, cpuIndex, processoId);
+            atualizarProcessoEmExecucao(gerenciador, gerenciadorMemoria, cpuIndex, processoId);
             return; // Sai da função após atribuir o processo à CPU.
         }
     }
@@ -704,16 +679,16 @@ void incrementarTempoCPU(GerenciadorProcessos *gerenciador)
 
 // Função principal do escalonador para o algoritmo de filas de prioridades.
 // Troca o contexto dos processos e executa o próximo processo na CPU.
-void escalonadorFilaDePrioridades(GerenciadorProcessos *gerenciador)
+void escalonadorFilaDePrioridades(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria)
 {
     verificarBloqueadosFilaDePrioridades(gerenciador);
-    trocaDeContextoFilaDePrioridade(gerenciador);
-    executandoProcessoCPU(gerenciador);
+    trocaDeContextoFilaDePrioridade(gerenciador, gerenciadorMemoria);
+    executandoProcessoCPU(gerenciador, gerenciadorMemoria);
 }
 
 // Troca o contexto dos processos em todas as CPUs utilizando o algoritmo de filas de prioridades.
 // Processos são re-enfileirados com prioridade atualizada.
-void trocaDeContextoFilaDePrioridade(GerenciadorProcessos *gerenciador)
+void trocaDeContextoFilaDePrioridade(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria)
 {
     int idProcesso;
     for (int i = 0; i < gerenciador->quantidadeCPUs; i++)
@@ -737,23 +712,23 @@ void trocaDeContextoFilaDePrioridade(GerenciadorProcessos *gerenciador)
         // Se não há processo em execução na CPU, tenta colocar um novo processo.
         if (gerenciador->processosEmExecucao[i] == -1)
         {
-            colocaProcessoNaCPUFilaDePrioridades(gerenciador, i);
+            colocaProcessoNaCPUFilaDePrioridades(gerenciador, gerenciadorMemoria, i);
         }
     }
 }
 
 // Função principal do escalonador para o algoritmo Round Robin.
 // Troca o contexto dos processos e executa o próximo processo na CPU.
-void escalonadorRoundRobin(GerenciadorProcessos *gerenciador)
+void escalonadorRoundRobin(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria)
 {
     verificarBloqueadosRoundRobin(gerenciador);
-    trocaDeContextoRoundRobin(gerenciador);
-    executandoProcessoCPU(gerenciador);
+    trocaDeContextoRoundRobin(gerenciador, gerenciadorMemoria);
+    executandoProcessoCPU(gerenciador, gerenciadorMemoria);
 }
 
 // Troca o contexto dos processos em todas as CPUs utilizando o algoritmo Round Robin.
 // Processos são re-enfileirados na fila de prontos.
-void trocaDeContextoRoundRobin(GerenciadorProcessos *gerenciador)
+void trocaDeContextoRoundRobin(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria)
 {
     int idProcesso;
     for (int i = 0; i < gerenciador->quantidadeCPUs; i++)
@@ -769,14 +744,14 @@ void trocaDeContextoRoundRobin(GerenciadorProcessos *gerenciador)
         // Se não há processo em execução na CPU, tenta colocar um novo processo.
         if (gerenciador->processosEmExecucao[i] == -1)
         {
-            colocaProcessoNaCPURoundRobin(gerenciador, i);
+            colocaProcessoNaCPURoundRobin(gerenciador, gerenciadorMemoria, i);
         }
     }
 }
 
 // Coloca um processo na CPU especificada utilizando o algoritmo Round Robin.
 // Desenfileira um processo da fila de prontos e o atribui à CPU.
-void colocaProcessoNaCPURoundRobin(GerenciadorProcessos *gerenciador, int cpuIndex)
+void colocaProcessoNaCPURoundRobin(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, int cpuIndex)
 {
     int processoId = -1;
 
@@ -791,7 +766,7 @@ void colocaProcessoNaCPURoundRobin(GerenciadorProcessos *gerenciador, int cpuInd
     if (processoId != -1)
     {
         // Atualiza a CPU com o processo desenfileirado.
-        atualizarProcessoEmExecucao(gerenciador, cpuIndex, processoId);
+        atualizarProcessoEmExecucao(gerenciador, gerenciadorMemoria, cpuIndex, processoId);
     }
 }
 

@@ -129,7 +129,14 @@ int processoControle()
 
         // Iniciar o Gerenciador de Processos com os parâmetros recebidos
         GerenciadorProcessos gerenciador;
-        iniciarGerenciadorProcessos(&gerenciador, "./entry/input1.txt", 0, numero_CPUS, tipo_escalonamento);
+    
+        // Iniciar o Gerenciador de Memória
+        GerenciadorDeMemoria gerenciadorMemoria;
+
+        printf("Iniciando gerenciador de memória...\n");
+        iniciarGerenciadorDeMemoria(&gerenciadorMemoria);
+        printf("Iniciando gerenciador de processos...\n");
+        iniciarGerenciadorProcessos(&gerenciador, &gerenciadorMemoria, "./entry/input1.txt", 0, numero_CPUS, tipo_escalonamento);
 
         /* No processo filho, ler do Pipe e processar comandos */
         close(fd[1]); // Fechar o descritor de escrita do Pipe no processo filho
@@ -150,12 +157,12 @@ int processoControle()
                 if (tipo_escalonamento == 0)
                 {
                     // Executar o escalonador de Fila de Prioridades
-                    escalonadorFilaDePrioridades(&gerenciador);
+                    escalonadorFilaDePrioridades(&gerenciador, &gerenciadorMemoria);
                 }
                 else if (tipo_escalonamento == 1)
                 {
                     // Executar o escalonador Round Robin
-                    escalonadorRoundRobin(&gerenciador);
+                    escalonadorRoundRobin(&gerenciador, &gerenciadorMemoria);
                 }
                 // Incrementar o tempo de CPU após o escalonamento
                 incrementarTempoCPU(&gerenciador);

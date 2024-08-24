@@ -8,7 +8,6 @@ void iniciarMapaDeBits(MapaDeBits *mapaDeBits)
     {
         mapaDeBits->bitmap[i] = 0;
     }
-
 }
 
 void printMapaDeBits(MapaDeBits *mapa)
@@ -34,13 +33,16 @@ void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lis
     if (localizarBlocoLivre(mapa, tamanho, &inicio))
     {
         // Alocando memória para o processo
-        atualizarMapaDeBits(mapa, inicio, tamanho, 1);
+        atualizarMapa(mapa, inicio, tamanho, 1);
         printMapaDeBits(mapa);
 
         // Adicionando o processo à lista de processos na memória
         printf("Alocando memória para o processo %d, tamanho %d\n", proceso->ID_Processo, proceso->quantidadeInteiros);
         enfileirarDinamicaProcesso(lista, proceso->ID_Processo, proceso->quantidadeInteiros);
+
+        printf("\nFila depois de adicionar\n");
         imprimirFilaDinamica(lista);
+        printf("\n\n");
 
         proceso->regBase = inicio;
         proceso->regLimite = inicio + tamanho;
@@ -54,11 +56,17 @@ void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lis
     {
         printf("nao consegue ne moises\n");
         // Não há espaço suficiente, movendo um processo para o disco
-        desalocarMemoriaFirstFit(memoria, lista, mapa, tamanho, tabela);
+        int sucesso = desalocarMemoriaFirstFit(memoria, lista, mapa, tamanho, tabela);
+        
+        if(sucesso == -1)
+        {
+            printf("Não foi possível desalocar memória\n");
+            return;
+        }
 
+        printf("\nFila depois de desalocar\n");
         imprimirFilaDinamica(lista);
-        printMapaDeBits(mapa);
-
+        printf("\n\n");
 
         printf("Tentando alocar memória novamente\n");
         alocarMemoriaFirstFit(memoria, mapa, lista, tamanho, proceso, tabela);
@@ -66,37 +74,72 @@ void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lis
     }
 }
 
-void desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela)
+int desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela)
 {
-    Node *atual = lista->frente;
-    Node *proximo = NULL;
+    // Node *atual = lista->frente;
+    // Node *proximo = NULL;
 
-    while (atual != NULL)
+    // int encontrou = 0;
+
+    // while (atual != NULL)
+    // {
+    //     proximo = atual->proximo;
+    //     if (tamanho <= atual->quantidadeVariaveis)
+    //     {
+    //         encontrou = 1;
+    //         printf("Desalocando memória para o processo %d\n", atual->dado);
+    //         ProcessoSimulado *processo = getProcesso(tabela, atual->dado);
+
+    //         // Move o processo para o disco
+    //         swapParaDisco(memoria, mapa, processo);
+    //         // Desaloca memória para o processo
+    //         atualizarMapaDeBits(mapa, processo->regBase, atual->quantidadeVariaveis, 0);
+    //         printMapaDeBits(mapa);
+    //         // Remove o processo da lista de processos na memória
+    //         removerNoPorValor(lista, atual->dado);
+    //         printf("fila depois de remover\n");
+    //         imprimirFilaDinamica(lista);
+
+    //         printf("Espaço liberado\n");
+    //         return;
+    //     }
+    //     atual = proximo;
+    // }
+
+    // if (!encontrou)
+    // {        imprimirFilaDinamica(lista);
+        //printMapaDeBits(mapa);
+    //     printf("Não foi possível encontrar um processo para desalocar\n");
+    // }
+
+    printf("Retirando primeiro proceso que encontrar\n");
+    // atual = lista->frente;
+    // proximo = atual->proximo;
+
+    int id = getPrimeiroElemento(lista);
+
+    printf("fila depois de remover 1 \n");
+    removerNoPorValor(lista, id);
+    imprimirFilaDinamica(lista);
+
+    printf("\nID do processo retirado %d\n", id);
+
+    if(id == -1)
     {
-        proximo = atual->proximo;
-        if (tamanho <= atual->quantidadeVariaveis)
-        {
-            printf("Desalocando memória para o processo %d\n", atual->dado);
-            ProcessoSimulado *processo = getProcesso(tabela, atual->dado);
-            
-            // Move o processo para o disco
-            swapParaDisco(memoria, mapa, processo);
-            // Desaloca memória para o processo
-            atualizarMapaDeBits(mapa, processo->regBase, atual->quantidadeVariaveis, 0);
-            printMapaDeBits(mapa);
-            // Remove o processo da lista de processos na memória
-            removerNoPorValor(lista, atual->dado);
-            printf("fila depois de remover\n");
-            imprimirFilaDinamica(lista);
-
-            printf("Espaço liberado\n");
-            return;
-        }
-        atual = proximo;
+        printf("Não foi possível desalocar memória\n");
+        return id;
     }
+
+    printf("Desalocando memória para o processo %d\n", id);
+    ProcessoSimulado *processo = getProcesso(tabela, id);
+
+    imprimirFilaDinamica(lista);
+    swapParaDisco(memoria, mapa, processo);
+
+    return id;
 }
 
-void atualizarMapaDeBits(MapaDeBits *mapa, int inicio, int tamanho, int valor)
+void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor)
 {
     // Atualiza o mapa de bits para marcar a memória como ocupada (1) ou livre (0)
     for (int i = inicio; i < inicio + tamanho; i++)
@@ -110,7 +153,7 @@ int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio)
     int consecutivos = 0;
     for (int i = 0; i < TAM_MEMORIA; i++)
     {
-        //printf("Consecutivos: %d\n", consecutivos);
+        // printf("Consecutivos: %d\n", consecutivos);
         if (mapa->bitmap[i] == 0)
         {
             consecutivos++;
@@ -156,7 +199,7 @@ void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa)
 
     for (int i = 0; i < TAM_MEMORIA; i++)
     {
-        if (mapa->bitmap[i] == 1)  // Verifica se o bit está preenchido
+        if (mapa->bitmap[i] == 1) // Verifica se o bit está preenchido
         {
             printf("│ %6d │ %-32d │\n", i, memoria->memoriaPrincipal[i]);
         }
@@ -165,12 +208,14 @@ void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa)
     printf("└─────────────────────────────────────────────┘\n");
 }
 
-void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo) {
+void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo)
+{
 
     printf("Swap para disco\n");
-    FILE *disco = fopen(DISCO, "r+");  // Abrir o arquivo para leitura e escrita
+    FILE *disco = fopen(DISCO, "r+"); // Abrir o arquivo para leitura e escrita
 
-    if (disco == NULL) {
+    if (disco == NULL)
+    {
         perror("Erro ao abrir arquivo de disco");
         return;
     }
@@ -182,8 +227,10 @@ void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *p
     printf("linha do processo no disco %d\n", processo->linhaDoDisco);
 
     // Encontra a linha correspondente ao processo no arquivo
-    while (fgets(buffer, sizeof(buffer), disco) != NULL) {
-        if (linhaAtual == processo->linhaDoDisco) {
+    while (fgets(buffer, sizeof(buffer), disco) != NULL)
+    {
+        if (linhaAtual == processo->linhaDoDisco)
+        {
             // Apaga a linha atual e reposiciona o ponteiro do arquivo para a posição inicial da linha
             printf("\n AA Linha do Disco que o process foi movido %d AA \n", linhaAtual);
             fseek(disco, -strlen(buffer), SEEK_CUR);
@@ -193,15 +240,17 @@ void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *p
     }
 
     // Verifica se a linha foi encontrada
-    if (linhaAtual != processo->linhaDoDisco) {
+    if (linhaAtual != processo->linhaDoDisco)
+    {
         printf("Erro: Linha do processo não encontrada no disco.\n");
         fclose(disco);
         return;
     }
 
     // Grava as variáveis do processo no disco, que estão localizadas na memória principal
-    for (int i = processo->regBase; i < processo->regLimite; i++) {
-        printf("%d ",memoria->memoriaPrincipal[i]);
+    for (int i = processo->regBase; i < processo->regLimite; i++)
+    {
+        printf("%d ", memoria->memoriaPrincipal[i]);
         fprintf(disco, "%d ", memoria->memoriaPrincipal[i]);
     }
 
@@ -211,7 +260,8 @@ void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *p
     fclose(disco);
     printf("\n");
     // Atualizar mapa de bits
-    atualizarMapaDeBits(mapaDeBits, processo->regBase, processo->quantidadeInteiros, 0);
+    atualizarMapa(mapaDeBits, processo->regBase, processo->quantidadeInteiros, 0);
+    printf("Processo %d movido para o disco\n", processo->ID_Processo);
 }
 
 void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo)
@@ -253,4 +303,3 @@ void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado
 
     fclose(disco);
 }
-

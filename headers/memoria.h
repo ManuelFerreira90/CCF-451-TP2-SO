@@ -25,12 +25,12 @@ typedef struct
 
 
 void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
-void desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);
+int desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);
 void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa);
 void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void iniciarMapaDeBits(MapaDeBits *mapaDeBits);
-void atualizarMapaDeBits(MapaDeBits *mapa, int inicio, int tamanho, int valor);
+void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor);
 void iniciarProcessosNaMemoriaLista(FilaDinamica *lista);
 int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio);
 void adicionarProcesso(FilaDinamica *lista, int id, int tamanho);

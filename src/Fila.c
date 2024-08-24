@@ -189,3 +189,13 @@ void removerNoPorValor(FilaDinamica *fila, int valor)
         atual = atual->proximo;
     }
 }
+
+int getPrimeiroElemento(FilaDinamica *fila)
+{
+    if (fila->frente == NULL)
+    {
+        return -1;
+    }
+
+    return fila->frente->dado;
+}

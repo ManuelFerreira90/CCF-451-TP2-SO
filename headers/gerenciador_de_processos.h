@@ -1,7 +1,7 @@
 #ifndef GERENCIADOR_PROCESSOS_H
 #define GERENCIADOR_PROCESSOS_H
 
-#include "./memoria.h"
+#include "./gerenciador_de_memoria.h"
 
 // Estrutura que agrupa filas de processos prontos e bloqueados, organizadas por prioridades.
 typedef struct
@@ -36,17 +36,13 @@ typedef struct
     int *processosEmExecucao;                      // Array que indica quais processos estão em execução em cada CPU.
     Tempo tempoMedio;                              // Tempo médio de execução dos processos.
     int processosTerminados;                       // Contador de processos que já terminaram a execução.
-    Memoria memoria;                               // Memória compartilhada entre os processos.
-    MapaDeBits mapaDeBits;                         // Mapa de bits para gerenciar a memória.
-    FilaDinamica processosNaMemoriaLista; // Lista de processos na memória.
-    int controleDoDisco;                           // Controle de disco para troca de contexto.
 } GerenciadorProcessos;
 
 // Declarações de funções para gerenciar processos na simulação
 //---------------------------------------------------------------------------------------
 
 // Inicializa o gerenciador de processos com os parâmetros fornecidos.
-void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, char *arquivoEntrada, int PID_Pai, int numsCPUs, int escalonador);
+void iniciarGerenciadorProcessos(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, char *arquivoEntrada, int PID_Pai, int numsCPUs, int escalonador);
 
 // Adiciona um processo à fila de prioridade de prontos.
 void adicionarProcessoProntoFilaDePrioridade(GerenciadorProcessos *gerenciador, int processoIndex);
@@ -55,16 +51,16 @@ void adicionarProcessoProntoFilaDePrioridade(GerenciadorProcessos *gerenciador, 
 void adicionarProcessoBloqueadoFilaDePrioridade(GerenciadorProcessos *gerenciador, int processoIndex);
 
 // Processa um comando de instrução para um processo específico.
-void processarComando(GerenciadorProcessos *gerenciador, Instrucao instrucao, int indexCPU);
+void processarComando(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, Instrucao instrucao, int indexCPU);
 
 // Executa o escalonador de processos com base em fila de prioridades.
-void escalonadorFilaDePrioridades(GerenciadorProcessos *gerenciador);
+void escalonadorFilaDePrioridades(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria);
 
 // Coloca um processo na CPU conforme a fila de prioridades.
-void colocaProcessoNaCPUFilaDePrioridades(GerenciadorProcessos *gerenciador, int cpuIndex);
+void colocaProcessoNaCPUFilaDePrioridades(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria,int cpuIndex);
 
 // Realiza a execução de um processo na CPU.
-void executandoProcessoCPU(GerenciadorProcessos *gerenciador);
+void executandoProcessoCPU(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria);
 
 // Realiza a troca de contexto entre processos.
 int trocaDeContexto(GerenciadorProcessos *gerenciador, int i);
@@ -100,9 +96,9 @@ void comandoN(CPU *cpu, int valor);
 void comandoV(CPU *cpu, int index, int valor, Memoria *memoria);
 void comandoA(CPU *cpu, int index, int valor, Memoria *memoria);
 void comandoS(CPU *cpu, int index, int valor, Memoria *memoria);
-void comandoF(GerenciadorProcessos *gerenciador, int index, int valor);
+void comandoF(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, int indexCPU, int valor);
 void comandoR(CPU *cpu, Instrucao instrucao);
-void comandoT(GerenciadorProcessos *gerenciador, int indexCPU);
+void comandoT(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, int indexCPU);
 
 // Funções auxiliares para leitura e manipulação de arquivos e dados.
 void lerArquivo(char *arquivoEntrada);
@@ -113,10 +109,10 @@ void remove_char(char *str, char garbage);
 void incrementarTempoCPU(GerenciadorProcessos *gerenciador);
 
 // Funções de troca de contexto específicas para cada algoritmo de escalonamento.
-void trocaDeContextoFilaDePrioridade(GerenciadorProcessos *gerenciador);
-void escalonadorRoundRobin(GerenciadorProcessos *gerenciador);
-void trocaDeContextoRoundRobin(GerenciadorProcessos *gerenciador);
-void colocaProcessoNaCPURoundRobin(GerenciadorProcessos *gerenciador, int cpuIndex);
+void trocaDeContextoFilaDePrioridade(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria);
+void escalonadorRoundRobin(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria);
+void trocaDeContextoRoundRobin(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria);
+void colocaProcessoNaCPURoundRobin(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *GerenciadorMemoria, int cpuIndex);
 
 // Imprime informações detalhadas sobre todos os processos e filas.
 void imprimirTodosProcessos(GerenciadorProcessos *gerenciador);
@@ -126,7 +122,7 @@ void imprimirFilas(GerenciadorProcessos *gerenciador);
 int getFatiaTempoPrioridade(int prioridade);
 void verificarBloqueadosFilaDePrioridades(GerenciadorProcessos *gerenciador);
 void verificarBloqueadosRoundRobin(GerenciadorProcessos *gerenciador);
-void gerenciarMemoriaParaProcesso(GerenciadorProcessos *gerenciador, ProcessoSimulado *processo);
+void atualizarProcessoEmExecucao(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciadorMemoria, int cpuIndex, int processoId);
 //---------------------------------------------------------------------------------------
 
 #endif // GERENCIADOR_PROCESSOS_H
