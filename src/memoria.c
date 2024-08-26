@@ -116,10 +116,10 @@ int desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *
     // atual = lista->frente;
     // proximo = atual->proximo;
 
-    int id = getPrimeiroElemento(lista);
+    int id = desenfileirarDinamica(lista);
 
     printf("fila depois de remover 1 \n");
-    removerNoPorValor(lista, id);
+    //removerNoPorValor(lista, id);
     imprimirFilaDinamica(lista);
 
     printf("\nID do processo retirado %d\n", id);
