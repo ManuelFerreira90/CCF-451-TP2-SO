@@ -3,7 +3,7 @@
 
 
 #include "./tabela_de_processos.h"
-
+#include "./Desempenho.h"
 // TODO: Diminuir tamanho da memoria para testes de algoritmo de troca de processos
 // first fit, next fit, best fit e worst fit
 // TODO: Implementar métricas
@@ -24,15 +24,15 @@ typedef struct
 } MapaDeBits;
 
 
-void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
-int desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);
+void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *proceso, tabelaProcessos *tabela, Desempenho * desempenho);
+int desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela ,Desempenho * desempenho);
 void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa);
-void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
+void swapParaDisco(Memoria *memoria, Desempenho *desempenho, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void iniciarMapaDeBits(MapaDeBits *mapaDeBits);
 void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor);
 void iniciarProcessosNaMemoriaLista(FilaDinamica *lista);
-int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio);
+int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio,Desempenho * desempenho);
 void adicionarProcesso(FilaDinamica *lista, int id, int tamanho);
 void removerProcesso(FilaDinamica *lista, int id);
 int isProcessoNaMemoria(FilaDinamica *lista, int id);

@@ -8,7 +8,8 @@ typedef struct
     Memoria memoria;                               // Memória compartilhada entre os processos.
     MapaDeBits mapaDeBits;                         // Mapa de bits para gerenciar a memória.
     FilaDinamica processosNaMemoriaLista;          // Lista de processos na memória.
-    int controleDoDisco;                           // Controle de disco para troca de contexto.
+    int controleDoDisco;  
+    Desempenho desempenho;                         // Controle de disco para troca de contexto.
 } GerenciadorDeMemoria;
 
 void iniciarGerenciadorDeMemoria(GerenciadorDeMemoria *gerenciadorMemoria);
@@ -16,5 +17,5 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
 void gerenciarTerminoProcesso(GerenciadorDeMemoria *gerenciadorMemoria, ProcessoSimulado *processo);
 void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria);
 int getControleDisco(GerenciadorDeMemoria *gerenciadorMemoria);
-
+void imprimirDesempenho(Desempenho desempenho);
 #endif // GERENCIADOR_DE_MEMORIA_H

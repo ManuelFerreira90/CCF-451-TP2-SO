@@ -38,6 +38,8 @@ typedef struct
     int processosTerminados;                       // Contador de processos que já terminaram a execução.
 } GerenciadorProcessos;
 
+
+
 // Declarações de funções para gerenciar processos na simulação
 //---------------------------------------------------------------------------------------
 

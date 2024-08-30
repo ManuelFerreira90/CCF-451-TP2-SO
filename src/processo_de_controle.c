@@ -183,6 +183,7 @@ int processoControle()
                 printf("\nImprimindo tempo médio de resposta e finalizando.\n");
                 // Chamar função para imprimir o tempo médio de resposta dos processos
                 processoImpressao(gerenciador);
+                imprimirDesempenho(gerenciadorMemoria.desempenho);
                 break;
             }
             case ' ':
