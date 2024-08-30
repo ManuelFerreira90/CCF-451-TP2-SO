@@ -26,6 +26,128 @@ void printMapaDeBits(MapaDeBits *mapa)
     printf("└─────────────────────────────────────────────┘\n");
 }
 
+void alocarMemoriaWorstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela) {
+    int maiorInicio = -1;
+    int maiorTamanho = 0;
+
+    int inicio = 0;
+    int blocoLivreAtual = 0;
+    
+    // Percorre o mapa de bits para encontrar o maior bloco livre
+    for (int i = 0; i < TAM_MEMORIA; i++) {
+        if (mapa->bitmap[i] == 0) {
+            if (blocoLivreAtual == 0) {
+                inicio = i; // Marca o início de um bloco livre
+            }
+            blocoLivreAtual++;
+        } else {
+            if (blocoLivreAtual > maiorTamanho) {
+                maiorTamanho = blocoLivreAtual;
+                maiorInicio = inicio;
+            }
+            blocoLivreAtual = 0; // Reinicia o bloco livre atual
+        }
+    }
+
+    // Considera o último bloco livre no final da memória
+    if (blocoLivreAtual > maiorTamanho) {
+        maiorTamanho = blocoLivreAtual;
+        maiorInicio = inicio;
+    }
+
+    // Verifica se encontrou um bloco grande o suficiente
+    if (maiorInicio != -1 && maiorTamanho >= tamanho) {
+        // Atualiza o mapa de bits e a memória
+        atualizarMapa(mapa, inicio, tamanho, 1);
+        printMapaDeBits(mapa);
+
+        // Adiciona o processo à lista de processos na memória
+        printf("Alocando memória para o processo %d, tamanho %d\n", processo->ID_Processo, processo->quantidadeInteiros);
+        enfileirarDinamicaProcesso(lista, processo->ID_Processo, processo->quantidadeInteiros);
+
+        // for (int i = maiorInicio; i < maiorInicio + tamanho; i++) {
+        //     mapa->bitmap[i] = 1;
+        //     memoria->memoriaPrincipal[i] = processo->ID_Processo; // Associa o bloco de memória ao ID do processo
+        // }
+        
+        printf("Processo %d alocado na memória de %d a %d usando Worst Fit.\n", processo->ID_Processo, maiorInicio, maiorInicio + tamanho - 1);
+
+        printf("\nFila depois de adicionar\n");
+        imprimirFilaDinamica(lista);
+        printf("\n\n");
+
+        processo->regBase = maiorInicio;
+        processo->regLimite = maiorInicio + tamanho;
+
+    } else {
+        printf("Memória insuficiente para alocar o processo %d usando Worst Fit.\n Desalocando processo...\n", processo->ID_Processo);
+
+        int sucesso = desalocarMemoriaWorstFit(memoria, lista, mapa, tamanho, tabela);
+        
+        if(sucesso == -1)
+        {
+            printf("Não foi possível desalocar memória\n");
+            return;
+        }
+
+        printf("\nFila depois de desalocar\n");
+        imprimirFilaDinamica(lista);
+        printf("\n\n");
+
+        printf("Tentando alocar memória novamente\n");
+        alocarMemoriaFirstFit(memoria, mapa, lista, tamanho, processo, tabela);
+        return;
+    }
+}
+
+int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int idProcesso, tabelaProcessos *tabela) {
+    // Node *atual = lista->frente;
+
+    // while (atual != NULL) {
+    //     if (atual->dado == idProcesso) {
+    //         // Encontra o processo na memória
+    //         int inicio = atual->dado;
+    //         int tamanho = atual->quantidadeVariaveis;
+
+    //         // Atualiza o mapa de bits e a memória
+    //         for (int i = inicio; i < inicio + tamanho; i++) {
+    //             mapa->bitmap[i] = 0;
+    //             memoria->memoriaPrincipal[i] = 0;
+    //         }
+
+    //         // Remove o processo da lista
+    //         // removerProcesso(lista, idProcesso);
+
+    //         printf("Processo %d desalocado da memória.\n", idProcesso);
+    //         return 1; // Indica que o desalocamento foi bem-sucedido
+    //     }
+    //     atual = atual->proximo;
+    // }
+
+    printf("Retirando primeiro proceso que encontrar\n");
+    int id = desenfileirarDinamica(lista);
+
+    printf("fila depois de remover 1 \n");
+    imprimirFilaDinamica(lista);
+
+    printf("\nID do processo retirado %d\n", id);
+    if(id == -1)
+    {
+        printf("Não foi possível desalocar memória\n");
+        return id;
+    }
+
+    printf("Desalocando memória para o processo %d\n", id);
+    ProcessoSimulado *processo = getProcesso(tabela, id);
+
+    imprimirFilaDinamica(lista);
+    swapParaDisco(memoria, mapa, processo);
+
+    // printf("Erro: Processo %d não encontrado na memória para desalocar.\n", idProcesso);
+    // return 0; // Indica falha no desalocamento
+    return id;
+}
+
 void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *proceso, tabelaProcessos *tabela)
 {
     int inicio;

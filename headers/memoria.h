@@ -26,6 +26,8 @@ typedef struct
 
 void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
 int desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);
+void alocarMemoriaNextFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
+int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int idProcesso, tabelaProcessos *tabela);
 void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa);
 void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
@@ -33,9 +35,10 @@ void iniciarMapaDeBits(MapaDeBits *mapaDeBits);
 void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor);
 void iniciarProcessosNaMemoriaLista(FilaDinamica *lista);
 int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio);
-void adicionarProcesso(FilaDinamica *lista, int id, int tamanho);
-void removerProcesso(FilaDinamica *lista, int id);
+void adicionarProcesso(FilaDinamica *lista, int id, int tamanho); //não implementado
+void removerProcesso(FilaDinamica *lista, int id); //não implementado
 int isProcessoNaMemoria(FilaDinamica *lista, int id);
+
 
 #endif // MEMORIA_H
 

@@ -21,9 +21,13 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
     }
     else
     {
+
         printf("Processo %d não está na memória\n", processo->ID_Processo);
         imprimirFilaDinamica(&gerenciadorMemoria->processosNaMemoriaLista);
-        alocarMemoriaFirstFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela);
+
+        //alocarMemoriaFirstFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela);
+        alocarMemoriaWorstFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela);
+
         printf("Processo %d alocado na memória\n", processo->ID_Processo);
         if(processo->isExecutado == 1)
         {
