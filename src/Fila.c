@@ -117,7 +117,7 @@ void imprimirFilaDinamica(FilaDinamica *fila)
         return;
     }
 
-    Node *tempNode = fila->frente;  // Começa pelo primeiro nó
+    Node *tempNode = fila->frente;  // Começa pelo primeiro nó         
     printf("Fila: ");
     while (tempNode != NULL)  // Percorre a fila até o último nó
     {
