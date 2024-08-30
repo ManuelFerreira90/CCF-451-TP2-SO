@@ -36,7 +36,7 @@ void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor);
 void iniciarProcessosNaMemoriaLista(FilaDinamica *lista);
 int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio);
 void adicionarProcesso(FilaDinamica *lista, int id, int tamanho); //não implementado
-void removerProcesso(FilaDinamica *lista, int id); //não implementado
+void removerProcesso(FilaDinamica *lista, int id); 
 int isProcessoNaMemoria(FilaDinamica *lista, int id);
 
 

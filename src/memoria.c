@@ -95,58 +95,53 @@ void alocarMemoriaWorstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lis
         printf("\n\n");
 
         printf("Tentando alocar memória novamente\n");
-        alocarMemoriaFirstFit(memoria, mapa, lista, tamanho, processo, tabela);
+        alocarMemoriaWorstFit(memoria, mapa, lista, tamanho, processo, tabela);
         return;
     }
 }
 
 int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int idProcesso, tabelaProcessos *tabela) {
-    // Node *atual = lista->frente;
-
-    // while (atual != NULL) {
-    //     if (atual->dado == idProcesso) {
-    //         // Encontra o processo na memória
-    //         int inicio = atual->dado;
-    //         int tamanho = atual->quantidadeVariaveis;
-
-    //         // Atualiza o mapa de bits e a memória
-    //         for (int i = inicio; i < inicio + tamanho; i++) {
-    //             mapa->bitmap[i] = 0;
-    //             memoria->memoriaPrincipal[i] = 0;
-    //         }
-
-    //         // Remove o processo da lista
-    //         // removerProcesso(lista, idProcesso);
-
-    //         printf("Processo %d desalocado da memória.\n", idProcesso);
-    //         return 1; // Indica que o desalocamento foi bem-sucedido
-    //     }
-    //     atual = atual->proximo;
-    // }
-
-    printf("Retirando primeiro proceso que encontrar\n");
-    int id = desenfileirarDinamica(lista);
-
-    printf("fila depois de remover 1 \n");
-    imprimirFilaDinamica(lista);
-
-    printf("\nID do processo retirado %d\n", id);
-    if(id == -1)
-    {
-        printf("Não foi possível desalocar memória\n");
-        return id;
+    if (isFilaDinamicaVazia(lista)) {
+        printf("Não foi possível desalocar memória, fila vazia.\n");
+        return -1;
     }
 
-    printf("Desalocando memória para o processo %d\n", id);
-    ProcessoSimulado *processo = getProcesso(tabela, id);
+    Node *atual = lista->frente;
+    Node *maiorProcessoNode = NULL;
+    int maiorTamanho = 0;
 
-    imprimirFilaDinamica(lista);
-    swapParaDisco(memoria, mapa, processo);
+    // Encontra o processo com maior tamanho
+    while (atual != NULL) {
+        ProcessoSimulado *processo = getProcesso(tabela, atual->dado);
+        if (processo != NULL && processo->quantidadeInteiros > maiorTamanho) {
+            maiorTamanho = processo->quantidadeInteiros;
+            maiorProcessoNode = atual;
+        }
+        atual = atual->proximo;
+    }
 
-    // printf("Erro: Processo %d não encontrado na memória para desalocar.\n", idProcesso);
-    // return 0; // Indica falha no desalocamento
-    return id;
+    if (maiorProcessoNode == NULL) {
+        printf("Erro: Nenhum processo encontrado na memória para desalocar.\n");
+        return -1; // Indica falha no desalocamento
+    }
+
+    int id = maiorProcessoNode->dado;
+    printf("Desalocando memória para o processo maior: ID %d, tamanho %d.\n", id, maiorTamanho);
+
+    ProcessoSimulado *processoParaDesalocar = getProcesso(tabela, id);
+    if (processoParaDesalocar == NULL) {
+        printf("Erro: Processo %d não encontrado na tabela de processos.\n", id);
+        return -1;
+    }
+
+    // Atualiza o mapa de bits e a memória
+    swapParaDisco(memoria, mapa, processoParaDesalocar);
+    removerProcesso(lista, id);
+
+    printf("Processo %d desalocado da memória.\n", id);
+    return id; // Indica que o desalocamento foi bem-sucedido
 }
+
 
 void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *proceso, tabelaProcessos *tabela)
 {
@@ -424,4 +419,40 @@ void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado
     }
 
     fclose(disco);
+}
+
+void removerProcesso(FilaDinamica *fila, int idProcesso) {
+    if (isFilaDinamicaVazia(fila)) {
+        printf("A fila está vazia, não é possível remover o processo.\n");
+        return;
+    }
+
+    Node *atual = fila->frente;
+    Node *anterior = NULL;
+
+    // Percorre a fila para encontrar o processo a ser removido
+    while (atual != NULL) {
+        if (atual->dado == idProcesso) {
+            if (anterior == NULL) {
+                // Removendo o primeiro nó
+                fila->frente = atual->proximo;
+            } else {
+                // Removendo um nó no meio ou final
+                anterior->proximo = atual->proximo;
+            }
+
+            if (atual->proximo == NULL) {
+                // Se for o último nó, atualiza o ponteiro 'tras'
+                fila->tras = anterior;
+            }
+
+            free(atual);  // Libera a memória do nó removido
+            fila->tamanho--;  // Decrementa o tamanho da fila
+            return;
+        }
+        anterior = atual;
+        atual = atual->proximo;
+    }
+
+    printf("Processo %d não encontrado na fila.\n", idProcesso);
 }
