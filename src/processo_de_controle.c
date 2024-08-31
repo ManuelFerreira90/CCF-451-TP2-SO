@@ -11,14 +11,14 @@ void processoImpressao(GerenciadorProcessos gerenciador);
 
 int processoControle()
 {
-    int fd[2], fd_filho[2]; /* Descritores de arquivo para o Pipe */
-    pid_t pid;              /* Variável para armazenar o PID do processo */
-    int file_fd;            /* Descritor de arquivo para o arquivo init.txt */
-    char buffer[BUFFER];    /* Buffer para leitura de dados */
-    ssize_t bytes_read;     /* Variável para armazenar a quantidade de bytes lidos */
-    char escolha;           /* Variável para armazenar a escolha do usuário */
+    int fd[2], fd_filho[2];   /* Descritores de arquivo para o Pipe */
+    pid_t pid;                /* Variável para armazenar o PID do processo */
+    int file_fd;              /* Descritor de arquivo para o arquivo init.txt */
+    char buffer[BUFFER];      /* Buffer para leitura de dados */
+    ssize_t bytes_read;       /* Variável para armazenar a quantidade de bytes lidos */
+    char escolha;             /* Variável para armazenar a escolha do usuário */
     char stringEntrada[1000]; /* Buffer para armazenar a entrada do usuário */
-    FILE *entrada = stdin;  // Por padrão, a entrada será lida do terminal
+    FILE *entrada = stdin;    // Por padrão, a entrada será lida do terminal
 
     /* Criando o Pipe para comunicação entre processos pai e filho */
     if (pipe(fd) < 0)
@@ -64,11 +64,21 @@ int processoControle()
                 printf("Tipo de escalonamento inválido. Tente novamente.\n");
             }
         } while (tipo_escalonamento != 0 && tipo_escalonamento != 1);
+        int tipo_alocacao;
+        do
+        {
+            printf("Escolha o tipo de alocação de memória (0: First Fit, 1: Best Fit, 2: Worst Fit, 3: Next Fit): ");
+            scanf("%d", &tipo_alocacao);
+            if (tipo_alocacao != 0 && tipo_alocacao != 1 && tipo_alocacao != 2)
+            {
+                printf("Tipo de alocação inválido. Tente novamente.\n");
+            }
+        } while (tipo_alocacao != 0 && tipo_alocacao != 1 && tipo_alocacao != 2 && tipo_alocacao != 3);
 
         // Enviar o número de CPUs e o tipo de escalonamento para o processo filho
         write(fd[1], &numero_CPUS, sizeof(int));
         write(fd[1], &tipo_escalonamento, sizeof(int));
-
+        write(fd[1], &tipo_alocacao, sizeof(int));
         int entradaUsu;
         do
         {
@@ -117,25 +127,44 @@ int processoControle()
         }
 
         char str_recebida[BUFFER + 1]; // Buffer para leitura da string enviada pelo pai (+1 para o terminador nulo)
-        ssize_t bytes_read; // Variável para armazenar a quantidade de bytes lidos
+        ssize_t bytes_read;            // Variável para armazenar a quantidade de bytes lidos
 
         /* Inicializar o Gerenciador de Processos */
         int unidadeTempo = 0;
-        int numero_CPUS, tipo_escalonamento;
+        int numero_CPUS, tipo_escalonamento, tipo_alocacao;
 
         // Ler o número de CPUs e o tipo de escalonamento do pipe
         read(fd[0], &numero_CPUS, sizeof(int));
         read(fd[0], &tipo_escalonamento, sizeof(int));
+        read(fd[0], &tipo_alocacao, sizeof(int));
 
         // Iniciar o Gerenciador de Processos com os parâmetros recebidos
         GerenciadorProcessos gerenciador;
-    
+
         // Iniciar o Gerenciador de Memória
         GerenciadorDeMemoria gerenciadorMemoria;
 
         printf("Iniciando gerenciador de memória...\n");
-        iniciarGerenciadorDeMemoria(&gerenciadorMemoria);
+        iniciarGerenciadorDeMemoria(&gerenciadorMemoria, tipo_alocacao);
         printf("Iniciando gerenciador de processos...\n");
+        switch (tipo_alocacao)
+        {
+        case 0:
+            printf("Tipo de alocação: First Fit\n");
+            break;
+        case 1:
+            printf("Tipo de alocação: Best Fit\n");
+            break;
+        case 2:
+            printf("Tipo de alocação: Worst Fit\n");
+            break;
+        case 3:
+            printf("Tipo de alocação: Next Fit\n");
+            break;
+        default:
+            printf("Tipo de alocação inválido\n");
+            break;
+        }
         iniciarGerenciadorProcessos(&gerenciador, &gerenciadorMemoria, "./entry/input1.txt", 0, numero_CPUS, tipo_escalonamento);
 
         /* No processo filho, ler do Pipe e processar comandos */
@@ -209,7 +238,6 @@ int processoControle()
 
     return 0;
 }
-
 
 void processoImpressao(GerenciadorProcessos gerenciador)
 {

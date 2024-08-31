@@ -11,9 +11,10 @@ typedef struct
     int controleDoDisco;  
     Desempenho desempenho;                         // Controle de disco para troca de contexto.
     int nextfit;
+    int tipoAlocacao;
 } GerenciadorDeMemoria;
 
-void iniciarGerenciadorDeMemoria(GerenciadorDeMemoria *gerenciadorMemoria);
+void iniciarGerenciadorDeMemoria(GerenciadorDeMemoria *gerenciadorMemoria, int tipoAlocacao);
 void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, ProcessoSimulado *processo, tabelaProcessos *tabela);
 void gerenciarTerminoProcesso(GerenciadorDeMemoria *gerenciadorMemoria, ProcessoSimulado *processo);
 void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria);

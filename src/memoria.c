@@ -326,7 +326,7 @@ void alocarMemoriaBestFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *list
         printf("Alocando memória para o processo %d, tamanho %d\n", processo->ID_Processo, processo->quantidadeInteiros);
         enfileirarDinamicaProcesso(lista, processo->ID_Processo, processo->quantidadeInteiros);
         
-        printf("Processo %d alocado na memória de %d a %d usando Worst Fit.\n", processo->ID_Processo, inicio, inicio + tamanho - 1);
+        printf("Processo %d alocado na memória de %d a %d usando Best Fit.\n", processo->ID_Processo, inicio, inicio + tamanho - 1);
 
         printf("\nFila depois de adicionar\n");
         imprimirFilaDinamica(lista);
@@ -336,7 +336,7 @@ void alocarMemoriaBestFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *list
         processo->regLimite = inicio + tamanho;
 
     } else {
-        printf("Memória insuficiente para alocar o processo %d usando Worst Fit.\n Desalocando processo...\n", processo->ID_Processo);
+        printf("Memória insuficiente para alocar o processo %d usando Best Fit.\n Desalocando processo...\n", processo->ID_Processo);
 
         int sucesso = desalocarMemoriaBestFit(memoria, lista, mapa, tamanho, tabela, desempenho);
         
