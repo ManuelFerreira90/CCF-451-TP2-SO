@@ -39,7 +39,6 @@ typedef struct
 } GerenciadorProcessos;
 
 
-
 // Declarações de funções para gerenciar processos na simulação
 //---------------------------------------------------------------------------------------
 

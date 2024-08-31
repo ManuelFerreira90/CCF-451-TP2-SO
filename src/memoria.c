@@ -106,13 +106,13 @@ int desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *
     return id;
 }
 
-void alocarMemoriaNextFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, int *ultimaPosicaoAlocacao)
+void alocarMemoriaNextFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, int *ultimaPosicaoAlocacao, Desempenho * desempenho)
 {
     int inicio = -1;
     printf("Alocando memória para o processo %d, tamanho %d\n", processo->ID_Processo, processo->quantidadeInteiros);
 
     // Tentar encontrar um bloco livre começando da última posição de alocação
-    if (localizarBlocoLivreNextFit(mapa, tamanho, &inicio, *ultimaPosicaoAlocacao))
+    if (localizarBlocoLivreNextFit(mapa, tamanho, &inicio, *ultimaPosicaoAlocacao, desempenho))
     {
         // Alocando memória para o processo
         atualizarMapa(mapa, inicio, tamanho, 1);
@@ -137,7 +137,7 @@ void alocarMemoriaNextFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *list
     else
     {
         printf("Não há espaço suficiente. Tentando desalocar um processo...\n");
-        int sucesso = desalocarMemoriaNextFit(memoria, lista, mapa, tamanho, tabela, ultimaPosicaoAlocacao);
+        int sucesso = desalocarMemoriaNextFit(memoria, lista, mapa, tamanho, tabela, ultimaPosicaoAlocacao, desempenho);
 
         if (sucesso == -1)
         {
@@ -150,11 +150,11 @@ void alocarMemoriaNextFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *list
         printf("\n\n");
 
         printf("Tentando alocar memória novamente\n");
-        alocarMemoriaNextFit(memoria, mapa, lista, tamanho, processo, tabela, ultimaPosicaoAlocacao);
+        alocarMemoriaNextFit(memoria, mapa, lista, tamanho, processo, tabela, ultimaPosicaoAlocacao, desempenho);
         return;
     }
 }
-int desalocarMemoriaNextFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela, int *ultimaPosicaoAlocacao)
+int desalocarMemoriaNextFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela, int *ultimaPosicaoAlocacao, Desempenho * desempenho)
 {
     printf("Retirando o primeiro processo que encontrar (Next Fit)\n");
 
@@ -192,12 +192,12 @@ int desalocarMemoriaNextFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *m
     }
 
     // Transfere o processo para o disco, se necessário
-    swapParaDisco(memoria, mapa, processo);
+    swapParaDisco(memoria, mapa, processo, desempenho);
 
     return id;
 }
 
-int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int ultimaPosicaoAlocacao)
+int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int ultimaPosicaoAlocacao, Desempenho * desempenho)
 {
     int encontrado = 0;
     int consecutivos = 0;
@@ -231,10 +231,10 @@ int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int u
     return encontrado;
 }
 
-void alocarMemoriaWorstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela) {
+void alocarMemoriaWorstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, Desempenho * desempenho) {
     int inicio;
 
-    if(localizarBlocoLivre(mapa, tamanho, &inicio)){
+    if(localizarBlocoLivre(mapa, tamanho, &inicio, desempenho)){
         atualizarMapa(mapa, inicio, tamanho, 1);
         printMapaDeBits(mapa);
 
@@ -254,7 +254,7 @@ void alocarMemoriaWorstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lis
     } else {
         printf("Memória insuficiente para alocar o processo %d usando Worst Fit.\n Desalocando processo...\n", processo->ID_Processo);
 
-        int sucesso = desalocarMemoriaWorstFit(memoria, lista, mapa, tamanho, tabela);
+        int sucesso = desalocarMemoriaWorstFit(memoria, lista, mapa, tamanho, tabela, desempenho);
         
         if(sucesso == -1)
         {
@@ -267,12 +267,12 @@ void alocarMemoriaWorstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lis
         printf("\n\n");
 
         printf("Tentando alocar memória novamente\n");
-        alocarMemoriaWorstFit(memoria, mapa, lista, tamanho, processo, tabela);
+        alocarMemoriaWorstFit(memoria, mapa, lista, tamanho, processo, tabela, desempenho);
         return;
     }
 }
 
-int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int idProcesso, tabelaProcessos *tabela) {
+int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int idProcesso, tabelaProcessos *tabela, Desempenho * desempenho) {
     if (isFilaDinamicaVazia(lista)) {
         printf("Não foi possível desalocar memória, fila vazia.\n");
         return -1;
@@ -309,7 +309,7 @@ int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *
     atualizarMapa(mapa, processoParaDesalocar->regBase, maiorTamanho, 0);
     printMapaDeBits(mapa);
     removerNoPorValor(lista, id);
-    swapParaDisco(memoria, mapa, processoParaDesalocar);
+    swapParaDisco(memoria, mapa, processoParaDesalocar, desempenho);
 
     printf("Processo %d desalocado da memória.\n", id);
     return id; // Indica que o desalocamento foi bem-sucedido
