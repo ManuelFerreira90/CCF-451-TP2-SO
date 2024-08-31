@@ -9,6 +9,7 @@ typedef struct
     MapaDeBits mapaDeBits;                         // Mapa de bits para gerenciar a memória.
     FilaDinamica processosNaMemoriaLista;          // Lista de processos na memória.
     int controleDoDisco;                           // Controle de disco para troca de contexto.
+    int nextfit;
 } GerenciadorDeMemoria;
 
 void iniciarGerenciadorDeMemoria(GerenciadorDeMemoria *gerenciadorMemoria);
