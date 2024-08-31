@@ -69,7 +69,7 @@ int processoControle()
         {
             printf("Escolha o tipo de alocação de memória (0: First Fit, 1: Best Fit, 2: Worst Fit, 3: Next Fit): ");
             scanf("%d", &tipo_alocacao);
-            if (tipo_alocacao != 0 && tipo_alocacao != 1 && tipo_alocacao != 2)
+            if (tipo_alocacao > 3)
             {
                 printf("Tipo de alocação inválido. Tente novamente.\n");
             }
