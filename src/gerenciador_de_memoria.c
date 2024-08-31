@@ -6,6 +6,15 @@ void iniciarGerenciadorDeMemoria(GerenciadorDeMemoria *gerenciadorMemoria)
     gerenciadorMemoria->nextfit = 0;
     iniciarMapaDeBits(&gerenciadorMemoria->mapaDeBits);
     inicializarFilaDinamica(&gerenciadorMemoria->processosNaMemoriaLista);
+    iniciarDesempenho(&gerenciadorMemoria->desempenho);
+}
+
+void iniciarDesempenho(Desempenho *desempenho)
+{
+    desempenho->numeroMedioFragmentosExternos = 0;
+    desempenho->numeroVezesAlocacao = 0;
+    desempenho->numeroVezesDesalocacao = 0;
+    desempenho->tempoMedioAlocacao = 0;
 }
 
 int getControleDisco(GerenciadorDeMemoria *gerenciadorMemoria)
@@ -19,16 +28,21 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
     {
         return;
     }
+    else if (processo->quantidadeInteiros > TAM_MEMORIA)
+    {
+        printf("Processo %d é maior que a memória\n", processo->ID_Processo);
+        return;
+    }
     else
     {
 
         printf("Processo %d não está na memória\n", processo->ID_Processo);
         imprimirFilaDinamica(&gerenciadorMemoria->processosNaMemoriaLista);
-        alocarMemoriaFirstFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela,&gerenciadorMemoria->desempenho);
+        alocarMemoriaFirstFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela, &gerenciadorMemoria->desempenho);
         gerenciadorMemoria->desempenho.numeroVezesAlocacao += 1;
-        
+
         printf("Processo %d alocado na memória\n", processo->ID_Processo);
-        if(processo->isExecutado == 1)
+        if (processo->isExecutado == 1)
         {
             printf("Recuperando processo %d da memória\n", processo->ID_Processo);
             recuperarDoDisco(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), processo);
@@ -38,10 +52,10 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
 
 void gerenciarTerminoProcesso(GerenciadorDeMemoria *gerenciadorMemoria, ProcessoSimulado *processo)
 {
-    swapParaDisco(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), processo,&gerenciadorMemoria->desempenho);
+    swapParaDisco(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), processo, &gerenciadorMemoria->desempenho);
     removerNoPorValor(&(gerenciadorMemoria->processosNaMemoriaLista), processo->ID_Processo);
     imprimirFilaDinamica(&(gerenciadorMemoria->processosNaMemoriaLista));
-    //atualizarMapa(&(gerenciadorMemoria->mapaDeBits), processo->regBase, processo->quantidadeInteiros, 0);
+    // atualizarMapa(&(gerenciadorMemoria->mapaDeBits), processo->regBase, processo->quantidadeInteiros, 0);
 }
 
 void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria)
@@ -49,16 +63,16 @@ void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria)
     gerenciadorMemoria->controleDoDisco++;
 }
 
-
-void imprimirDesempenho(Desempenho desempenho) {
-    printf("+--------------------------------------------+\n");
-    printf("| Desempenho da Simulação                    |\n");
-    printf("+--------------------------+-----------------+\n");
-    printf("| Métrica                  | Valor           |\n");
-    printf("+--------------------------+-----------------+\n");
-    printf("| Número Médio de Fragmentos Externos | %15d |\n", desempenho.numeroMedioFragmentosExternos);
-    printf("| Tempo Médio de Alocação           | %15d ms |\n", desempenho.tempoMedioAlocacao);
-    printf("| Número de Vezes de Desalocação    | %15d |\n", desempenho.numeroVezesDesalocacao);
-    printf("| Número de Vezes de Alocação       | %15d |\n", desempenho.numeroVezesAlocacao);
-    printf("+--------------------------+-----------------+\n");
+void imprimirDesempenho(Desempenho desempenho)
+{
+    printf("+---------------------------------------------------------+\n");
+    printf("| Desempenho da Simulação                                 |\n");
+    printf("+--------------------------+------------------------------+\n");
+    printf("| Métrica                  | Valor                        |\n");
+    printf("+--------------------------+------------------------------+\n");
+    printf("| Número Médio de Fragmentos Externos | %17d |\n", desempenho.numeroMedioFragmentosExternos);
+    printf("| Tempo Médio de Alocação           | %16d ms |\n", desempenho.tempoMedioAlocacao);
+    printf("| Número de Vezes de Desalocação    | %19d |\n", desempenho.numeroVezesDesalocacao);
+    printf("| Número de Vezes de Alocação       | %19d |\n", desempenho.numeroVezesAlocacao);
+    printf("+--------------------------+------------------------------+\n");
 }

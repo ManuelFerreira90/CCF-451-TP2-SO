@@ -30,8 +30,10 @@ int desalocarMemoriaNextFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *m
 int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int ultimaPosicaoAlocacao, Desempenho * desempenho);
 void alocarMemoriaWorstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, Desempenho * desempenho);
 int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int idProcesso, tabelaProcessos *tabela, Desempenho * desempenho);
+void alocarMemoriaBestFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, Desempenho * desempenho);
+int desalocarMemoriaBestFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int idProcesso, tabelaProcessos *tabela, Desempenho * desempenho);
 void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa);
-void swapParaDisco(Memoria *memoria, Desempenho *desempenho, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
+void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo, Desempenho *desempenho);
 void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void iniciarMapaDeBits(MapaDeBits *mapaDeBits);
 void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor);
