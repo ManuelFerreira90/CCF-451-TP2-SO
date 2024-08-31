@@ -3,7 +3,7 @@
 void iniciarGerenciadorDeMemoria(GerenciadorDeMemoria *gerenciadorMemoria)
 {
     gerenciadorMemoria->controleDoDisco = 0;
-
+    gerenciadorMemoria->nextfit = 0;
     iniciarMapaDeBits(&gerenciadorMemoria->mapaDeBits);
     inicializarFilaDinamica(&gerenciadorMemoria->processosNaMemoriaLista);
 }
@@ -26,7 +26,8 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
         imprimirFilaDinamica(&gerenciadorMemoria->processosNaMemoriaLista);
 
         //alocarMemoriaFirstFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela);
-        alocarMemoriaWorstFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela);
+        //alocarMemoriaWorstFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela);
+        alocarMemoriaNextFit(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->processosNaMemoriaLista), processo->quantidadeInteiros, processo, tabela, &(gerenciadorMemoria->nextfit));
 
         printf("Processo %d alocado na memória\n", processo->ID_Processo);
         if(processo->isExecutado == 1)
