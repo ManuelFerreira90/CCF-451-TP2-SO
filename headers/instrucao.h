@@ -3,6 +3,7 @@
 
 // Definições de constantes usadas no sistema de gerenciamento de processos.
 #define MAX_PROCESSOS 5000  // Número máximo de processos que o sistema pode gerenciar.
+#define TAMANHO_MEMORIA 100 // Tamanho da memória alocada para cada processo.
 #define TABLE_WIDTH 40      // Largura da tabela usada para exibição de dados.
 #define MAX_CMD_LEN 100     // Tamanho máximo permitido para comandos de entrada.
 #define NUM_PRIORIDADES 4   // Número de níveis de prioridade para o escalonador de processos.
