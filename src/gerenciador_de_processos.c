@@ -205,6 +205,7 @@ void comandoT(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciad
 
     gerenciarTerminoProcesso(gerenciadorMemoria, processo);
 
+    printMapaDeBits(&gerenciadorMemoria->mapaDeBits);
     // Se o processo for válido, termina-o
     if (processo != NULL)
     {

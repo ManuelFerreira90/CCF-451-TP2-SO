@@ -40,7 +40,7 @@ int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio);
 void adicionarProcesso(FilaDinamica *lista, int id, int tamanho); //não implementado
 void removerProcesso(FilaDinamica *lista, int id); 
 int isProcessoNaMemoria(FilaDinamica *lista, int id);
-
+void printMapaDeBits(MapaDeBits *mapa);
 
 #endif // MEMORIA_H
 

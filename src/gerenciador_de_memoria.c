@@ -43,6 +43,7 @@ void gerenciarTerminoProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Processo
     swapParaDisco(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), processo);
     removerNoPorValor(&(gerenciadorMemoria->processosNaMemoriaLista), processo->ID_Processo);
     imprimirFilaDinamica(&(gerenciadorMemoria->processosNaMemoriaLista));
+    //atualizarMapa(&(gerenciadorMemoria->mapaDeBits), processo->regBase, processo->quantidadeInteiros, 0);
 }
 
 void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria)
