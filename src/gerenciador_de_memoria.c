@@ -86,6 +86,10 @@ void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria)
 
 void imprimirDesempenho(Desempenho desempenho)
 {
+     if(desempenho.numeroVezesAlocacao > 0){
+        desempenho.numeroMedioFragmentosExternos = desempenho.numeroMedioFragmentosExternos / desempenho.numeroVezesAlocacao;
+        desempenho.tempoMedioAlocacao = desempenho.tempoMedioAlocacao / desempenho.numeroVezesAlocacao;
+    }
     printf("+---------------------------------------------------------+\n");
     printf("| Desempenho da Simulação                                 |\n");
     printf("+--------------------------+------------------------------+\n");
@@ -94,6 +98,5 @@ void imprimirDesempenho(Desempenho desempenho)
     printf("| Número Médio de Fragmentos Externos | %17d |\n", desempenho.numeroMedioFragmentosExternos);
     printf("| Tempo Médio de Alocação           | %19d |\n", desempenho.tempoMedioAlocacao);
     printf("| Número de Vezes de Desalocação    | %19d |\n", desempenho.numeroVezesDesalocacao);
-    printf("| Número de Vezes de Alocação       | %19d |\n", desempenho.numeroVezesAlocacao);
     printf("+--------------------------+------------------------------+\n");
 }

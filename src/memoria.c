@@ -200,8 +200,20 @@ int desalocarMemoriaNextFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *m
 int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int ultimaPosicaoAlocacao, Desempenho * desempenho)
 {
     int encontrado = 0;
-    int consecutivos = 0;
     int j = ultimaPosicaoAlocacao;
+    int consecutivos = 0;
+    for(int i = 0; i < TAM_MEMORIA; i++){
+        if(mapa->bitmap[i] == 0){
+            consecutivos++;
+           
+        } else {
+            if(consecutivos > 0){
+                desempenho->numeroMedioFragmentosExternos += 1;
+            }
+            consecutivos = 0;
+        }
+    }
+    consecutivos = 0;
 
     for (int i = 0; i < TAM_MEMORIA * 2; i++)
     {
@@ -215,6 +227,7 @@ int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int u
             consecutivos++;
             if(consecutivos == tamanho)
             {
+                desempenho->tempoMedioAlocacao += 1;
                 encontrado = 1;
                 *inicio = j - tamanho + 1;
                 printf("Espaço livre encontrado na posição %d\n", *inicio);
@@ -223,6 +236,7 @@ int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int u
         }
         else
         {
+            desempenho->tempoMedioAlocacao += 1;
             consecutivos = 0;
         }
         j++;
@@ -415,7 +429,22 @@ void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor)
 
 int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho * desempenho)
 {
+
     int consecutivos = 0;
+    for(int i = 0; i < TAM_MEMORIA; i++){
+        if(mapa->bitmap[i] == 0){
+            consecutivos++;
+           
+        } else {
+            if(consecutivos > 0){
+                desempenho->numeroMedioFragmentosExternos += 1;
+            }
+            consecutivos = 0;
+        }
+    }
+    consecutivos = 0;
+
+
     for (int i = 0; i < TAM_MEMORIA; i++)
     {
         // printf("Consecutivos: %d\n", consecutivos);
@@ -425,7 +454,6 @@ int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho *
             if (consecutivos == tamanho)
             {
                 desempenho->tempoMedioAlocacao += 1;
-                desempenho->numeroMedioFragmentosExternos += 1;
                 *inicio = i - tamanho + 1;
                 printf("Espaço livre encontrado na posição %d\n", *inicio);
                 return 1; // Encontrou espaço livre
@@ -437,11 +465,13 @@ int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho *
         {
             if(consecutivos > 0){
                 desempenho->tempoMedioAlocacao += 1;
-                desempenho->numeroMedioFragmentosExternos += 1;
+
             }
             consecutivos = 0;
         }
     }
+
+    
     printf("Não há espaço suficiente na memória\n");
     return 0; // Não encontrou espaço livre suficiente
 }
