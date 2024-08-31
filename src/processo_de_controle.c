@@ -68,7 +68,7 @@ int processoControle()
         // Enviar o número de CPUs e o tipo de escalonamento para o processo filho
         write(fd[1], &numero_CPUS, sizeof(int));
         write(fd[1], &tipo_escalonamento, sizeof(int));
-        
+
         int entradaUsu;
         do
         {
