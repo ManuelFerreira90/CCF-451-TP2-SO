@@ -18,4 +18,5 @@ void gerenciarTerminoProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Processo
 void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria);
 int getControleDisco(GerenciadorDeMemoria *gerenciadorMemoria);
 
+
 #endif // GERENCIADOR_DE_MEMORIA_H
