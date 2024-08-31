@@ -21,6 +21,7 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
     }
     else
     {
+
         printf("Processo %d não está na memória\n", processo->ID_Processo);
         imprimirFilaDinamica(&gerenciadorMemoria->processosNaMemoriaLista);
 

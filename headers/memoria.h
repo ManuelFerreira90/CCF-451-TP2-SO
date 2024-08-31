@@ -23,12 +23,18 @@ typedef struct
     int bitmap[TAM_MEMORIA];
 } MapaDeBits;
 
-
+//First Fit
 void alocarMemoriaFirstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
 int desalocarMemoriaFirstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela);
-void alocarMemoriaNextFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, int *ultimaPosicaoAlocacao);
+
+//Next Fit
+void alocarMemoriaNextFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela);
 int desalocarMemoriaNextFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int tamanho, tabelaProcessos *tabela, int *ultimaPosicaoAlocacao);
 int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int ultimaPosicaoAlocacao);
+
+//Worst Fit
+int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *mapa, int idProcesso, tabelaProcessos *tabela);
+
 void printMemoriaPreenchida(Memoria *memoria, MapaDeBits *mapa);
 void swapParaDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
 void recuperarDoDisco(Memoria *memoria, MapaDeBits *mapaDeBits, ProcessoSimulado *processo);
@@ -36,8 +42,8 @@ void iniciarMapaDeBits(MapaDeBits *mapaDeBits);
 void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor);
 void iniciarProcessosNaMemoriaLista(FilaDinamica *lista);
 int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio);
-void adicionarProcesso(FilaDinamica *lista, int id, int tamanho);
-void removerProcesso(FilaDinamica *lista, int id);
+void adicionarProcesso(FilaDinamica *lista, int id, int tamanho); //não implementado
+void removerProcesso(FilaDinamica *lista, int id); 
 int isProcessoNaMemoria(FilaDinamica *lista, int id);
 
 #endif // MEMORIA_H
