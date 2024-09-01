@@ -9,7 +9,7 @@
 #define NUM_PRIORIDADES 4   // Número de níveis de prioridade para o escalonador de processos.
 #define NUM_CPUs 4          // Número de CPUs disponíveis para execução dos processos.
 #define QUANTUM 5           // Quantum de tempo utilizado no escalonador Round Robin.
-#define TAM_MEMORIA 4    // Tamanho da memória disponível para alocação de processos.
+#define TAM_MEMORIA 18    // Tamanho da memória disponível para alocação de processos.
 #define DISCO "disco/disco.txt" // Caminho para o arquivo de disco.
 
 #include <sys/types.h>

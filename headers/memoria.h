@@ -43,6 +43,7 @@ void adicionarProcesso(FilaDinamica *lista, int id, int tamanho);
 void removerProcesso(FilaDinamica *lista, int id);
 int isProcessoNaMemoria(FilaDinamica *lista, int id);
 void printMapaDeBits(MapaDeBits *mapa);
+int localizarBlocoLivreWorstFit(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho *desempenho);
 
 #endif // MEMORIA_H
 

@@ -248,7 +248,7 @@ int localizarBlocoLivreNextFit(MapaDeBits *mapa, int tamanho, int *inicio, int u
 void alocarMemoriaWorstFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, Desempenho * desempenho) {
     int inicio;
 
-    if(localizarBlocoLivre(mapa, tamanho, &inicio, desempenho)){
+    if(localizarBlocoLivreWorstFit(mapa, tamanho, &inicio, desempenho)){
         atualizarMapa(mapa, inicio, tamanho, 1);
         printMapaDeBits(mapa);
 
@@ -331,29 +331,30 @@ int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *
 
 int localizarBlocoLivreBestFit(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho * desempenho)
 {
+    printf("CHEGOU LOCALIZAR BEST FIT\n");
     int menorTamanho = 0;
     int consecutivos = 0;
-    for(int i = 0; i < TAM_MEMORIA; i++){
-        if(mapa->bitmap[i] == 0){
-            consecutivos++;
+    // for(int i = 0; i < TAM_MEMORIA; i++){
+    //     if(mapa->bitmap[i] == 0){
+    //         consecutivos++;
            
-        } else {
-            if(consecutivos > 0){
-                desempenho->numeroMedioFragmentosExternos += 1;
-            }
-            consecutivos = 0;
-        }
-    }
-    consecutivos = 0;
+    //     } else {
+    //         if(consecutivos > 0){
+    //             desempenho->numeroMedioFragmentosExternos += 1;
+    //         }
+    //         consecutivos = 0;
+    //     }
+    // }
+    // consecutivos = 0;
 
 
     for (int i = 0; i < TAM_MEMORIA; i++)
     {
-        if (mapa->bitmap[i] == 0)
+        if (mapa->bitmap[i] == 0 && i != TAM_MEMORIA - 1)
         {
             consecutivos++;
         }
-        else
+        else 
         {
             if (consecutivos >= tamanho)
             {
@@ -361,7 +362,7 @@ int localizarBlocoLivreBestFit(MapaDeBits *mapa, int tamanho, int *inicio, Desem
                 {
 
                     menorTamanho = consecutivos;
-                    *inicio = i - consecutivos + 1;
+                    *inicio = i - consecutivos;
                 }
             }else{
             if(consecutivos > 0){
@@ -386,7 +387,7 @@ int localizarBlocoLivreBestFit(MapaDeBits *mapa, int tamanho, int *inicio, Desem
 
 void alocarMemoriaBestFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, Desempenho * desempenho) {
     int inicio;
-
+    printf("PASSO 1 -> CHEGOU ALOCAR BEST FIT\n");
     if(localizarBlocoLivreBestFit(mapa, tamanho, &inicio, desempenho)){
         atualizarMapa(mapa, inicio, tamanho, 1);
         printMapaDeBits(mapa);
@@ -481,6 +482,38 @@ void atualizarMapa(MapaDeBits *mapa, int inicio, int tamanho, int valor)
         mapa->bitmap[i] = valor;
     }
 }
+
+int localizarBlocoLivreWorstFit(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho *desempenho) {
+    int maiorTamanho = 0; // Inicializa com o menor valor possível
+    int maiorInicio = -1;
+    int consecutivos = 0;
+
+    for (int i = 0; i < TAM_MEMORIA; i++) {
+        if (mapa->bitmap[i] == 0) {
+            consecutivos++;
+            if (i == TAM_MEMORIA - 1 || mapa->bitmap[i + 1] == 1) { // Fim de um bloco livre
+                if (consecutivos >= tamanho && consecutivos > maiorTamanho) {
+                    maiorTamanho = consecutivos;
+                    maiorInicio = i - consecutivos + 1;
+                }
+                consecutivos = 0;
+            }
+        } else {
+            consecutivos = 0;
+        }
+    }
+
+    if (maiorInicio != -1) {
+        desempenho->tempoMedioAlocacao += 1;
+        *inicio = maiorInicio;
+        printf("Espaço livre encontrado na posição %d com tamanho %d\n",*inicio, maiorTamanho);
+        return 1; // Encontrou o maior bloco livre
+    }
+
+    printf("Não há espaço suficiente na memória\n");
+    return 0; // Não encontrou espaço livre suficiente
+}
+
 
 int localizarBlocoLivre(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho * desempenho)
 {
