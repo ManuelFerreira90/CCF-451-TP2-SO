@@ -329,10 +329,46 @@ int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *
     return id; // Indica que o desalocamento foi bem-sucedido
 }
 
+int localizarBlocoLivreBestFit(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho * desempenho)
+{
+    int menorTamanho = 0;
+    int consecutivos = 0;
+
+    for (int i = 0; i < TAM_MEMORIA; i++)
+    {
+        if (mapa->bitmap[i] == 0)
+        {
+            consecutivos++;
+        }
+        else
+        {
+            if (consecutivos >= tamanho)
+            {
+                if (menorTamanho == 0 || consecutivos < menorTamanho)
+                {
+                    menorTamanho = consecutivos;
+                    *inicio = i - consecutivos + 1;
+                }
+            }
+            consecutivos = 0;
+        }
+    }
+
+    if (menorTamanho >= tamanho)
+    {
+        desempenho->tempoMedioAlocacao += 1;
+        printf("Espaço livre encontrado na posição %d\n", *inicio);
+        return 1; // Encontrou espaço livre
+    }
+    
+    printf("Não há espaço suficiente na memória\n");
+    return 0; // Não encontrou espaço livre suficiente
+}
+
 void alocarMemoriaBestFit(Memoria *memoria, MapaDeBits *mapa, FilaDinamica *lista, int tamanho, ProcessoSimulado *processo, tabelaProcessos *tabela, Desempenho * desempenho) {
     int inicio;
 
-    if(localizarBlocoLivre(mapa, tamanho, &inicio, desempenho)){
+    if(localizarBlocoLivreBestFit(mapa, tamanho, &inicio, desempenho)){
         atualizarMapa(mapa, inicio, tamanho, 1);
         printMapaDeBits(mapa);
 
