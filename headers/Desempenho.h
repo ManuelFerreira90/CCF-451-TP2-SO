@@ -2,7 +2,7 @@ typedef struct Desempenho
 {
 
     int numeroMedioFragmentosExternos;
-    int tempoMedioAlocacao;
+    double tempoMedioAlocacao;
     int numeroVezesDesalocacao;
     int numeroVezesAlocacao;
 

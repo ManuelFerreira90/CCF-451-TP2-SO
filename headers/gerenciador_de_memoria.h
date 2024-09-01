@@ -21,5 +21,6 @@ void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria);
 int getControleDisco(GerenciadorDeMemoria *gerenciadorMemoria);
 void imprimirDesempenho(Desempenho desempenho);
 void iniciarDesempenho(Desempenho *desempenho);
+void calcularFragmentosExternos(MapaDeBits *mapa, Desempenho *desempenho);
 
 #endif // GERENCIADOR_DE_MEMORIA_H

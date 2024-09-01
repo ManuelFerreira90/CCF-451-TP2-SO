@@ -7,7 +7,7 @@
 // TODO: @Tarik 2. Implementar função para as filas de prioridades ou fila de round robin, conforme a escolha inicial do escalonamento
 
 // Declaração da função para imprimir os processos no Gerenciador de Processos
-void processoImpressao(GerenciadorProcessos gerenciador);
+void processoImpressao(GerenciadorProcessos gerenciador, GerenciadorDeMemoria gerenciadorMemoria);
 
 int processoControle()
 {
@@ -206,13 +206,18 @@ int processoControle()
                 {
                     imprimeCPU(gerenciador.cpus[i], i);
                 }
+
+                printMemoriaPreenchida(&gerenciadorMemoria.memoria, &gerenciadorMemoria.mapaDeBits);
+                printMapaDeBits(&gerenciadorMemoria.mapaDeBits);
+                printf("Processos na memória:\n");
+                imprimirFilaDinamica(&gerenciadorMemoria.processosNaMemoriaLista);
+
                 break;
             case 'M':
             {
                 printf("\nImprimindo tempo médio de resposta e finalizando.\n");
                 // Chamar função para imprimir o tempo médio de resposta dos processos
-                processoImpressao(gerenciador);
-                imprimirDesempenho(gerenciadorMemoria.desempenho);
+                processoImpressao(gerenciador, gerenciadorMemoria);
                 break;
             }
             case ' ':
@@ -239,7 +244,7 @@ int processoControle()
     return 0;
 }
 
-void processoImpressao(GerenciadorProcessos gerenciador)
+void processoImpressao(GerenciadorProcessos gerenciador, GerenciadorDeMemoria gerenciadorMemoria)
 {
     pid_t print_pid = fork();
     if (print_pid == 0)
@@ -257,6 +262,12 @@ void processoImpressao(GerenciadorProcessos gerenciador)
         // Imprime as filas de processos no gerenciador
         imprimirFilas(&gerenciador);
 
+        printMemoriaPreenchida(&gerenciadorMemoria.memoria, &gerenciadorMemoria.mapaDeBits);
+        printMapaDeBits(&gerenciadorMemoria.mapaDeBits);
+        printf("Processos na memória:\n");
+        imprimirFilaDinamica(&gerenciadorMemoria.processosNaMemoriaLista);
+        imprimirDesempenho(gerenciadorMemoria.desempenho);
+        
         exit(0); // Finaliza o processo de impressão
     }
     else if (print_pid > 0)

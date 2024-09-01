@@ -36,9 +36,12 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
     }
     else
     {
+        clock_t inicio, fim;
+        double tempoGasto;
 
-        printf("Processo %d não está na memória\n", processo->ID_Processo);
-        imprimirFilaDinamica(&gerenciadorMemoria->processosNaMemoriaLista);
+        inicio = clock();    
+
+        printf("\nProcesso %d não está na memória\n", processo->ID_Processo);
         switch (gerenciadorMemoria->tipoAlocacao)
         {
         case 0:
@@ -60,9 +63,15 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
             break;
         }
 
+        fim = clock();
+        tempoGasto = ((double) (fim - inicio)) / CLOCKS_PER_SEC * 1000.0;
+
+        gerenciadorMemoria->desempenho.tempoMedioAlocacao += tempoGasto;
         gerenciadorMemoria->desempenho.numeroVezesAlocacao += 1;
 
-        printf("Processo %d alocado na memória\n", processo->ID_Processo);
+        calcularFragmentosExternos(&(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->desempenho));
+
+        printf("Processo %d alocado na memória\n\n", processo->ID_Processo);
         if (processo->isExecutado == 1)
         {
             printf("Recuperando processo %d da memória\n", processo->ID_Processo);
@@ -71,12 +80,28 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
     }
 }
 
+void calcularFragmentosExternos(MapaDeBits *mapa, Desempenho *desempenho)
+{
+    int fragmentoAtual = 0;
+    for (int i = 0; i < TAM_MEMORIA; i++)
+    {
+        if (mapa->bitmap[i] == 0)
+        {
+            fragmentoAtual = 1;
+        }
+        else
+        {
+            desempenho->numeroMedioFragmentosExternos += fragmentoAtual;
+            fragmentoAtual = 0;
+        }
+    }
+    desempenho->numeroMedioFragmentosExternos += fragmentoAtual;
+}
+
 void gerenciarTerminoProcesso(GerenciadorDeMemoria *gerenciadorMemoria, ProcessoSimulado *processo)
 {
     swapParaDisco(&(gerenciadorMemoria->memoria), &(gerenciadorMemoria->mapaDeBits), processo, &gerenciadorMemoria->desempenho);
     removerNoPorValor(&(gerenciadorMemoria->processosNaMemoriaLista), processo->ID_Processo);
-    imprimirFilaDinamica(&(gerenciadorMemoria->processosNaMemoriaLista));
-    // atualizarMapa(&(gerenciadorMemoria->mapaDeBits), processo->regBase, processo->quantidadeInteiros, 0);
 }
 
 void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria)
@@ -86,7 +111,8 @@ void incrementoControleDisco(GerenciadorDeMemoria *gerenciadorMemoria)
 
 void imprimirDesempenho(Desempenho desempenho)
 {
-     if(desempenho.numeroVezesAlocacao > 0){
+    if (desempenho.numeroVezesAlocacao > 0)
+    {
         desempenho.numeroMedioFragmentosExternos = desempenho.numeroMedioFragmentosExternos / desempenho.numeroVezesAlocacao;
         desempenho.tempoMedioAlocacao = desempenho.tempoMedioAlocacao / desempenho.numeroVezesAlocacao;
     }
@@ -96,7 +122,7 @@ void imprimirDesempenho(Desempenho desempenho)
     printf("| Métrica                  | Valor                        |\n");
     printf("+--------------------------+------------------------------+\n");
     printf("| Número Médio de Fragmentos Externos | %17d |\n", desempenho.numeroMedioFragmentosExternos);
-    printf("| Tempo Médio de Alocação           | %19d |\n", desempenho.tempoMedioAlocacao);
+    printf("| Tempo Médio de Alocação           | %17lf |\n", desempenho.tempoMedioAlocacao);
     printf("| Número de Vezes de Desalocação    | %19d |\n", desempenho.numeroVezesDesalocacao);
     printf("+--------------------------+------------------------------+\n");
 }

@@ -201,11 +201,9 @@ void comandoT(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *gerenciad
     // Obtém o processo simulado a partir do índice
     ProcessoSimulado *processo = getProcesso(&gerenciador->TabelaProcessos, processoIndex);
 
-    printf("\nTerminando processo %d\n", processo->ID_Processo);
-
     gerenciarTerminoProcesso(gerenciadorMemoria, processo);
 
-    printMapaDeBits(&gerenciadorMemoria->mapaDeBits);
+    //printMapaDeBits(&gerenciadorMemoria->mapaDeBits);
     // Se o processo for válido, termina-o
     if (processo != NULL)
     {
@@ -278,7 +276,7 @@ void processarComando(GerenciadorProcessos *gerenciador, GerenciadorDeMemoria *g
     gerenciador->cpus[indexCPU].fatiaTempo.valor--;
     // Atualiza os dados do processo na CPU após a execução do comando.
     atualizaDadosProcesso(&(gerenciador->cpus[indexCPU]));
-    printMemoriaPreenchida(&gerenciadorMemoria->memoria, &gerenciadorMemoria->mapaDeBits);
+    //printMemoriaPreenchida(&gerenciadorMemoria->memoria, &gerenciadorMemoria->mapaDeBits);
 }
 
 // Inicializa o vetor de memória para a CPU com base na memória do processo em execução.

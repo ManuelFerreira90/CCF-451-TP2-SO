@@ -20,6 +20,7 @@
 #include <fcntl.h>    // Incluído para manipulação de arquivos com open()
 #include <sys/wait.h> // Incluído para manipulação de processos com wait()
 #include <errno.h>    // Incluído para tratamento de erros do sistema
+#include <time.h>
 
 typedef enum
 {
