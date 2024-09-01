@@ -209,7 +209,7 @@ int processoControle()
 
                 printMemoriaPreenchida(&gerenciadorMemoria.memoria, &gerenciadorMemoria.mapaDeBits);
                 printMapaDeBits(&gerenciadorMemoria.mapaDeBits);
-                printf("Processos na memória:\n");
+                printf("IDs dos Processos na memória:\n");
                 imprimirFilaDinamica(&gerenciadorMemoria.processosNaMemoriaLista);
 
                 break;
@@ -264,7 +264,7 @@ void processoImpressao(GerenciadorProcessos gerenciador, GerenciadorDeMemoria ge
 
         printMemoriaPreenchida(&gerenciadorMemoria.memoria, &gerenciadorMemoria.mapaDeBits);
         printMapaDeBits(&gerenciadorMemoria.mapaDeBits);
-        printf("Processos na memória:\n");
+        printf("IDs dos Processos na memória:\n");
         imprimirFilaDinamica(&gerenciadorMemoria.processosNaMemoriaLista);
         imprimirDesempenho(gerenciadorMemoria.desempenho);
         

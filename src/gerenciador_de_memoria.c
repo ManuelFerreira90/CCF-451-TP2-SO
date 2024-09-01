@@ -122,7 +122,7 @@ void imprimirDesempenho(Desempenho desempenho)
     printf("| Métrica                  | Valor                        |\n");
     printf("+--------------------------+------------------------------+\n");
     printf("| Número Médio de Fragmentos Externos | %17d |\n", desempenho.numeroMedioFragmentosExternos);
-    printf("| Tempo Médio de Alocação           | %17lf |\n", desempenho.tempoMedioAlocacao);
+    printf("| Tempo Médio de Alocação           | %17lf ms|\n", desempenho.tempoMedioAlocacao);
     printf("| Número de Vezes de Desalocação    | %19d |\n", desempenho.numeroVezesDesalocacao);
     printf("+--------------------------+------------------------------+\n");
 }
