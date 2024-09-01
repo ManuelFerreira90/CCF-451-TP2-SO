@@ -333,6 +333,19 @@ int localizarBlocoLivreBestFit(MapaDeBits *mapa, int tamanho, int *inicio, Desem
 {
     int menorTamanho = 0;
     int consecutivos = 0;
+    for(int i = 0; i < TAM_MEMORIA; i++){
+        if(mapa->bitmap[i] == 0){
+            consecutivos++;
+           
+        } else {
+            if(consecutivos > 0){
+                desempenho->numeroMedioFragmentosExternos += 1;
+            }
+            consecutivos = 0;
+        }
+    }
+    consecutivos = 0;
+
 
     for (int i = 0; i < TAM_MEMORIA; i++)
     {
@@ -346,9 +359,15 @@ int localizarBlocoLivreBestFit(MapaDeBits *mapa, int tamanho, int *inicio, Desem
             {
                 if (menorTamanho == 0 || consecutivos < menorTamanho)
                 {
+
                     menorTamanho = consecutivos;
                     *inicio = i - consecutivos + 1;
                 }
+            }else{
+            if(consecutivos > 0){
+                desempenho->tempoMedioAlocacao += 1;
+
+            }
             }
             consecutivos = 0;
         }
