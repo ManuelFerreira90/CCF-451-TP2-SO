@@ -173,10 +173,14 @@ int processoControle()
             case 'I':
                 printf("\nImprimindo estado atual do sistema.\n");
                 // Chamar função do Gerenciador de Processos para imprimir o estado das CPUs
+                
                 for (int i = 0; i < gerenciador.quantidadeCPUs; i++)
                 {
                     imprimeCPU(gerenciador.cpus[i], i);
                 }
+                printMemoriaPreenchida(&gerenciadorMemoria.memoria, &gerenciadorMemoria.mapaDeBits);
+                printMapaDeBits(&gerenciadorMemoria.mapaDeBits);
+                imprimirFilaDinamica(&gerenciadorMemoria.processosNaMemoriaLista);
                 break;
             case 'M':
             {
