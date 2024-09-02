@@ -250,37 +250,41 @@ int desalocarMemoriaWorstFit(Memoria *memoria, FilaDinamica *lista, MapaDeBits *
     return id;
 }
 
-int localizarBlocoLivreBestFit(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho * desempenho)
+int localizarBlocoLivreBestFit(MapaDeBits *mapa, int tamanho, int *inicio, Desempenho *desempenho)
 {
-    int menorTamanho = 0;
+    int menorTamanho = TAM_MEMORIA + 1;
     int consecutivos = 0;
+
+    *inicio = -1; 
 
     for (int i = 0; i < TAM_MEMORIA; i++)
     {
-        if (mapa->bitmap[i] == 0 && i != TAM_MEMORIA - 1)
+        if (mapa->bitmap[i] == 0)
         {
             consecutivos++;
         }
         else 
         {
-            if (consecutivos >= tamanho)
+            if (consecutivos >= tamanho && consecutivos < menorTamanho)
             {
-                if (menorTamanho == 0 || consecutivos < menorTamanho)
-                {
-
-                    menorTamanho = consecutivos;
-                    *inicio = i - consecutivos;
-                }
+                menorTamanho = consecutivos;
+                *inicio = i - consecutivos; 
             }
-            consecutivos = 0;
+            consecutivos = 0; 
         }
+    }
+
+    if (consecutivos >= tamanho && consecutivos < menorTamanho)
+    {
+        menorTamanho = consecutivos;
+        *inicio = TAM_MEMORIA - consecutivos;
     }
 
     if (menorTamanho >= tamanho)
     {
-        return 1;
+        return 1; 
     }
-    
+
     return 0; 
 }
 

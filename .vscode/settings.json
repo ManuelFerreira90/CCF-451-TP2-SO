@@ -1,6 +1,7 @@
 {
     "files.associations": {
         ".env*": "dotenv",
-        "processo.h": "c"
+        "processo.h": "c",
+        "stdlib.h": "c"
     }
 }

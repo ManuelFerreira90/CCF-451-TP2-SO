@@ -72,6 +72,7 @@ void gerenciarMemoriaParaProcesso(GerenciadorDeMemoria *gerenciadorMemoria, Proc
         calcularFragmentosExternos(&(gerenciadorMemoria->mapaDeBits), &(gerenciadorMemoria->desempenho));
 
         printf("Processo %d alocado na memória\n\n", processo->ID_Processo);
+       
         if (processo->isExecutado == 1)
         {
             printf("Recuperando processo %d da memória\n", processo->ID_Processo);
